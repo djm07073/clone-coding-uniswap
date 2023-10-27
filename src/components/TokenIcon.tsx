@@ -1,6 +1,6 @@
 import { TokenData } from "../interfaces/data/token-data.interface";
 import { CoinIcon, CoinIconSize } from "./CoinIcon";
-import { chainDataList } from "../../public/data/chains";
+import { chainDataList } from "../data/chains";
 import type { FC } from "react";
 
 interface TokenIconProps {
