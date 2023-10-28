@@ -40,7 +40,6 @@ export default function Portfolio() {
   };
   useEffect(() => {
     getBalancesList();
-    console.log(tokenBalance);
   }, [currentChain, user]);
 
   return user ? (
