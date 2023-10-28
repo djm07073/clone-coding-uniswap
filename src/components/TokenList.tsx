@@ -30,7 +30,7 @@ export function TokenList({
         <option value="">Select a token</option>
         {tokenList.map((token, tokenIndex) => (
           <option key={tokenIndex} value={token.symbol}>
-            {token.symbol}
+            <div>{token.symbol}</div>
           </option>
         ))}
       </select>
