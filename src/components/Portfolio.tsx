@@ -7,17 +7,5 @@ export default function Portfolio() {
   const { chain: currentChain } = useNetwork();
 
   // TODO: TokenIcon listing
-  return user ? (
-    <div>
-      {chainDataList.map((chain, i) => {
-        if (chain.name === currentChain?.name) {
-          return (
-            <TokenIcon key={i} token={TokenDataList[c.id]} chain={chain} />
-          );
-        }
-      })}
-    </div>
-  ) : (
-    <div> 지갑 연결해라 🤬</div>
-  );
+  return user ? <div></div> : <div> 지갑 연결해라 🤬</div>;
 }
