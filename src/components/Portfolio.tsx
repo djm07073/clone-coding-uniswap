@@ -1,4 +1,4 @@
-import { useAccount, useNetwork } from "wagmi";
+import { useAccount, useBalance, useNetwork } from "wagmi";
 import { TokenIcon } from "./TokenIcon";
 import { TokenDataList } from "../data/tokens";
 import { useEffect, useState } from "react";
@@ -16,6 +16,7 @@ const getTokenBalance = async (
   const data: Multicall2.CallStruct[] = [];
   tokens.map((token) => {
     if (token.address !== ZeroAddress) {
+      console.log(token);
       data.push({
         target: token.address,
         callData: tokenItf.encodeFunctionData("balanceOf", [user]),
@@ -26,6 +27,7 @@ const getTokenBalance = async (
 };
 export default function Portfolio() {
   const { address: user } = useAccount();
+  const { data: balance } = useBalance({ address: user, chainId: 137 });
   const { chain: currentChain } = useNetwork();
   const [tokenList, setTokenList] = useState<TokenData[]>([]);
   const [tokenBalance, setTokenBalance] = useState<string[]>([]);
@@ -35,12 +37,14 @@ export default function Portfolio() {
         await getTokenBalance(TokenDataList[currentChain.id], user)
       ).returnData;
       setTokenList(TokenDataList[currentChain.id]);
+
+      tokenBalances.unshift(balance?.value.toString() ?? "0");
+
       setTokenBalance(tokenBalances);
     }
   };
   useEffect(() => {
     getBalancesList();
-    console.log(tokenBalance);
   }, [currentChain, user]);
 
   return user ? (

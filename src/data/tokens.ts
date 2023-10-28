@@ -1,7 +1,18 @@
 import { TokenData } from "../interfaces/data/token-data.interface";
 
-export const TokenDataList: { [chainId: number]: TokenData[] } = {
+export const TokenDataList:{[chainId: number]:TokenData[]} = {
   1: [
+    {
+      address: "0x0000000000000000000000000000000000000000",
+      chainId: 1,
+      symbol: "ETH",
+      decimals: 18,
+      name: "ETH",
+      priceUSD: "1946",
+      logoURI:
+        "https://static.debank.com/image/token/logo_url/eth/935ae4e4d1d12d59a99717a24f2540b5.png",
+      coinKey: "ETH",
+    },
     {
       address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
       chainId: 1,
@@ -202,6 +213,17 @@ export const TokenDataList: { [chainId: number]: TokenData[] } = {
   ],
   56: [
     {
+      address: "0x0000000000000000000000000000000000000000",
+      chainId: 56,
+      symbol: "BNB",
+      decimals: 18,
+      name: "BNB",
+      priceUSD: "248.5",
+      logoURI:
+        "https://static.debank.com/image/coin/logo_url/bnb/9784283a36f23a58982fc964574ea530.png",
+      coinKey: "BNB",
+    },
+    {
       address: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
       chainId: 56,
       symbol: "WBNB",
@@ -357,6 +379,17 @@ export const TokenDataList: { [chainId: number]: TokenData[] } = {
     },
   ],
   137: [
+    {
+      address: "0x0000000000000000000000000000000000000000",
+      chainId: 137,
+      symbol: "MATIC",
+      decimals: 18,
+      name: "MATIC",
+      priceUSD: "0.672076",
+      logoURI:
+        "https://static.debank.com/image/matic_token/logo_url/matic/6f5a6b6f0732a7a235131bd7804d357c.png",
+      coinKey: "MATIC",
+    },
     {
       address: "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
       chainId: 137,
