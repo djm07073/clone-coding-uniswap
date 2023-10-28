@@ -52,11 +52,15 @@ createWeb3Modal({ wagmiConfig, projectId, chains });
 function App() {
   return (
     <WagmiConfig config={wagmiConfig}>
+      <h1>Uniswap Clone</h1>
       {/* 1.ConnectButton */}
+      <h2>Wallet Connect</h2>
       <ConnectButton />
       {/* 2.Portfolio (token amount > 0.000001) */}
+      <h2>Portfolio</h2>
       <Portfolio />
       {/* 3. Swap Navigator */}
+      <h2>Swap</h2>
       <SwapNavigator />
     </WagmiConfig>
   );

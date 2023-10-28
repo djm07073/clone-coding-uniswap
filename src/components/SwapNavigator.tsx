@@ -1,26 +1,107 @@
+import { ChangeEvent, useState } from "react";
 import { ROUTER02 } from "../config/address";
 import { UniswapV2Router02__factory } from "../typechain";
+import { BsFillArrowDownCircleFill } from "react-icons/bs";
+import { TokenList } from "./TokenList";
+import { provider } from "../utils/provider";
+import { TokenData } from "../interfaces/data/token-data.interface";
+import { formatUnits, parseUnits } from "viem";
 
 export default function SwapNavigator() {
-  //TODO: getAmountOut function
-  const getAmountOut = async (path: `0x${string}`[], amountIn: bigint) => {
-    const router = UniswapV2Router02__factory.connect(ROUTER02);
+  const [inputValue, setInputValue] = useState("");
+  const [outputValue, setOutputValue] = useState("");
+  const [selectedInputToken, setSelectedInputToken] = useState<TokenData>();
+  const [selectedOutputToken, setSelectedOutputToken] = useState<TokenData>();
+  const getAmountOut = async (
+    path: `0x${string}`[],
+    amountIn: bigint
+  ): Promise<bigint> => {
+    const router = UniswapV2Router02__factory.connect(ROUTER02, provider);
     const result: bigint[] = await router.getAmountsOut(amountIn, path);
     return result[result.length - 1];
   };
-  const getAmountIn = async (path: `0x${string}`[], amountOut: bigint) => {
-    const router = UniswapV2Router02__factory.connect(ROUTER02);
+  const getAmountIn = async (
+    path: `0x${string}`[],
+    amountOut: bigint
+  ): Promise<bigint> => {
+    const router = UniswapV2Router02__factory.connect(ROUTER02, provider);
     const result: bigint[] = await router.getAmountsIn(amountOut, path);
     return result[0];
   };
+  const handleInputChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    selectedInputToken?.address && setInputValue(event.target.value);
 
+    if (selectedOutputToken?.address && event.target.value !== "0") {
+      if (Number(event.target.value) !== 0) {
+        const amountOut = await getAmountOut(
+          [
+            selectedInputToken!.address as `0x${string}`,
+            selectedOutputToken!.address as `0x${string}`,
+          ],
+          parseUnits(event.target.value, selectedInputToken!.decimals)
+        );
+
+        setOutputValue(formatUnits(amountOut, selectedOutputToken!.decimals));
+      } else {
+        setOutputValue("0");
+      }
+    }
+  };
+  const handleOutputChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    selectedInputToken?.address && setOutputValue(event.target.value);
+    if (selectedInputToken?.address) {
+      if (Number(event.target.value) !== 0) {
+        const amountIn = await getAmountIn(
+          [
+            selectedInputToken!.address as `0x${string}`,
+            selectedOutputToken!.address as `0x${string}`,
+          ],
+          parseUnits(event.target.value, selectedOutputToken!.decimals)
+        );
+        setInputValue(formatUnits(amountIn, selectedInputToken!.decimals));
+      } else {
+        setInputValue("0");
+      }
+    }
+  };
+  const toggleTokens = async () => {
+    const t1 = selectedInputToken;
+    const t2 = inputValue;
+    setSelectedInputToken(selectedOutputToken);
+    setSelectedOutputToken(t1);
+    setInputValue(outputValue);
+    setOutputValue(t2);
+  };
   return (
-    // TODO: UI 구현
+    <div className="flex flex-col items-center mt-4">
+      <div className="flex flex-row justify-center m-4">
+        <input
+          type="text"
+          className="border border-gray-300 rounded-lg p-2"
+          placeholder="0"
+          value={inputValue}
+          onChange={handleInputChange}
+        />
+        <TokenList
+          setSelectedToken={setSelectedInputToken}
+          selectedToken={selectedInputToken}
+        />
+      </div>
 
-    <div>
-      <div>{/** input */}</div>
-      <div>{/** toggle*/}</div>
-      <div>{/** output */}</div>
+      <BsFillArrowDownCircleFill onClick={toggleTokens} />
+      <div className="flex flex-row justify-center m-4">
+        <input
+          type="text"
+          className="border border-gray-300 rounded-lg p-2"
+          placeholder="0"
+          value={outputValue}
+          onChange={handleOutputChange}
+        />
+        <TokenList
+          setSelectedToken={setSelectedOutputToken}
+          selectedToken={selectedOutputToken}
+        />
+      </div>
     </div>
   );
 }
