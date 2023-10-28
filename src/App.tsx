@@ -9,11 +9,13 @@ import { InjectedConnector } from "wagmi/connectors/injected";
 import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import ConnectButton from "./components/ConnectButton";
-import Portfolio from "./components/PortFolio";
+import Portfolio from "./components/Portfolio";
 
 // 1. Get PROJECT_ID
 const projectId = import.meta.env.VITE_PROJECT_ID;
-export const apikey = import.meta.env.VITE_ALCHEMY_KEY;
+
+const apikey = import.meta.env.VITE_ALCHEMY_KEY;
+
 // 2. Create wagmiConfig
 const { chains, publicClient } = configureChains(
   [polygon],
