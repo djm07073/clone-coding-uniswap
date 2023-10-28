@@ -16,7 +16,6 @@ const getTokenBalance = async (
   const data: Multicall2.CallStruct[] = [];
   tokens.map((token) => {
     if (token.address !== ZeroAddress) {
-      console.log(token);
       data.push({
         target: token.address,
         callData: tokenItf.encodeFunctionData("balanceOf", [user]),
@@ -38,8 +37,6 @@ export default function Portfolio() {
       ).returnData;
       setTokenList(TokenDataList[currentChain.id]);
 
-      tokenBalances.unshift(balance?.value.toString() ?? "0");
-
       setTokenBalance(tokenBalances);
     }
   };
@@ -50,12 +47,20 @@ export default function Portfolio() {
   return user ? (
     <div>
       {tokenList.map((token, i) => {
-        if (BigInt(tokenBalance[i]) > 0n) {
+        if (balance && i === 0) {
+          // native token
+          return (
+            <div key={i} className="flex flex-row">
+              <TokenIcon token={token} size="md" />
+              <div>{formatUnits(balance!.value, 18)}</div>
+            </div>
+          );
+        } else if (BigInt(tokenBalance[i - 1]) > 0n) {
           return (
             // make border box for portfolio
             <div key={i} className="flex flex-row">
               <TokenIcon token={token} size="md" />
-              <div>{formatUnits(tokenBalance[i], token.decimals)}</div>
+              <div>{formatUnits(tokenBalance[i - 1], token.decimals)}</div>
             </div>
           );
         }
