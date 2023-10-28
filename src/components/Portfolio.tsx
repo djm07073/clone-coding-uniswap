@@ -1,4 +1,4 @@
-import { useAccount, useNetwork } from "wagmi";
+import { useAccount, useBalance, useNetwork } from "wagmi";
 import { TokenIcon } from "./TokenIcon";
 import { TokenDataList } from "../data/tokens";
 import { useEffect, useState } from "react";
@@ -26,6 +26,7 @@ const getTokenBalance = async (
 };
 export default function Portfolio() {
   const { address: user } = useAccount();
+  const { data: balance } = useBalance({ address: user, chainId: 137 });
   const { chain: currentChain } = useNetwork();
   const [tokenList, setTokenList] = useState<TokenData[]>([]);
   const [tokenBalance, setTokenBalance] = useState<string[]>([]);
@@ -35,23 +36,31 @@ export default function Portfolio() {
         await getTokenBalance(TokenDataList[currentChain.id], user)
       ).returnData;
       setTokenList(TokenDataList[currentChain.id]);
+
       setTokenBalance(tokenBalances);
     }
   };
   useEffect(() => {
     getBalancesList();
-    console.log(tokenBalance);
   }, [currentChain, user]);
 
   return user ? (
     <div>
       {tokenList.map((token, i) => {
-        if (BigInt(tokenBalance[i]) > 0n) {
+        if (balance && i === 0) {
+          // native token
+          return (
+            <div key={i} className="flex flex-row">
+              <TokenIcon token={token} size="md" />
+              <div>{formatUnits(balance!.value, 18)}</div>
+            </div>
+          );
+        } else if (BigInt(tokenBalance[i - 1]) > 0n) {
           return (
             // make border box for portfolio
             <div key={i} className="flex flex-row">
               <TokenIcon token={token} size="md" />
-              <div>{formatUnits(tokenBalance[i], token.decimals)}</div>
+              <div>{formatUnits(tokenBalance[i - 1], token.decimals)}</div>
             </div>
           );
         }
