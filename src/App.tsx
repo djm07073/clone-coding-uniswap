@@ -10,6 +10,7 @@ import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import ConnectButton from "./components/ConnectButton";
 import Portfolio from "./components/Portfolio";
+import SwapNavigator from "./components/SwapNavigator";
 
 // 1. Get PROJECT_ID
 const projectId = import.meta.env.VITE_PROJECT_ID;
@@ -51,10 +52,12 @@ createWeb3Modal({ wagmiConfig, projectId, chains });
 function App() {
   return (
     <WagmiConfig config={wagmiConfig}>
-      {/* //1.ConnectButton */}
+      {/* 1.ConnectButton */}
       <ConnectButton />
-      {/* //2.Portfolio (token amount > 0.000001) */}
+      {/* 2.Portfolio (token amount > 0.000001) */}
       <Portfolio />
+      {/* 3. Swap Navigator */}
+      <SwapNavigator />
     </WagmiConfig>
   );
 }
