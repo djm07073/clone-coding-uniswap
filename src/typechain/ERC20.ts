@@ -3,6 +3,7 @@
 /* eslint-disable */
 import type {
   BaseContract,
+  BigNumberish,
   BytesLike,
   FunctionFragment,
   Result,
@@ -21,14 +22,19 @@ import type {
 } from "./common";
 
 export interface ERC20Interface extends Interface {
-  getFunction(nameOrSignature: "balanceOf"): FunctionFragment;
+  getFunction(nameOrSignature: "balanceOf" | "approve"): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "balanceOf",
     values: [AddressLike]
   ): string;
+  encodeFunctionData(
+    functionFragment: "approve",
+    values: [AddressLike, BigNumberish]
+  ): string;
 
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
 }
 
 export interface ERC20 extends BaseContract {
@@ -76,6 +82,12 @@ export interface ERC20 extends BaseContract {
 
   balanceOf: TypedContractMethod<[_owner: AddressLike], [bigint], "view">;
 
+  approve: TypedContractMethod<
+    [_spender: AddressLike, _value: BigNumberish],
+    [boolean],
+    "nonpayable"
+  >;
+
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
   ): T;
@@ -83,6 +95,13 @@ export interface ERC20 extends BaseContract {
   getFunction(
     nameOrSignature: "balanceOf"
   ): TypedContractMethod<[_owner: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "approve"
+  ): TypedContractMethod<
+    [_spender: AddressLike, _value: BigNumberish],
+    [boolean],
+    "nonpayable"
+  >;
 
   filters: {};
 }
