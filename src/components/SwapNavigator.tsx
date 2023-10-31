@@ -2,10 +2,12 @@ import { ChangeEvent, useState } from "react";
 import { ROUTER02 } from "../config/address";
 import { UniswapV2Router02__factory } from "../typechain";
 import { BsFillArrowDownCircleFill } from "react-icons/bs";
-import { TokenList } from "./TokenList";
+import { TokenSelect } from "./TokenSelect";
 import { provider } from "../utils/provider";
 import { TokenData } from "../interfaces/data/token-data.interface";
 import { formatUnits, parseUnits } from "viem";
+import { ZeroAddress } from "ethers";
+import { TokenDataList } from "../data/tokens";
 
 export default function SwapNavigator() {
   const [inputValue, setInputValue] = useState("");
@@ -25,6 +27,7 @@ export default function SwapNavigator() {
     amountOut: bigint
   ): Promise<bigint> => {
     const router = UniswapV2Router02__factory.connect(ROUTER02, provider);
+    
     const result: bigint[] = await router.getAmountsIn(amountOut, path);
     return result[0];
   };
@@ -35,8 +38,11 @@ export default function SwapNavigator() {
       if (Number(event.target.value) !== 0) {
         const amountOut = await getAmountOut(
           [
-            selectedInputToken!.address as `0x${string}`,
-            selectedOutputToken!.address as `0x${string}`,
+            selectedInputToken!.address === ZeroAddress
+              ? (TokenDataList[137][1].address as `0x${string}`)
+              : (selectedInputToken!.address as `0x${string}`),
+            selectedOutputToken!.address ===
+            ZeroAddress ? (TokenDataList[137][1].address as `0x${string}`) :(selectedOutputToken!.address as `0x${string}`),
           ],
           parseUnits(event.target.value, selectedInputToken!.decimals)
         );
@@ -82,7 +88,7 @@ export default function SwapNavigator() {
           value={inputValue}
           onChange={handleInputChange}
         />
-        <TokenList
+        <TokenSelect
           setSelectedToken={setSelectedInputToken}
           selectedToken={selectedInputToken}
         />
@@ -97,7 +103,7 @@ export default function SwapNavigator() {
           value={outputValue}
           onChange={handleOutputChange}
         />
-        <TokenList
+        <TokenSelect
           setSelectedToken={setSelectedOutputToken}
           selectedToken={selectedOutputToken}
         />

@@ -3,7 +3,7 @@ import { TokenDataList } from "../data/tokens";
 import { useNetwork } from "wagmi";
 import { TokenData } from "../interfaces/data/token-data.interface";
 
-export function TokenList({
+export function TokenSelect({
   setSelectedToken,
   selectedToken,
 }: {
