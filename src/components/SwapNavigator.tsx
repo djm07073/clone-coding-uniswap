@@ -40,7 +40,7 @@ export default function SwapNavigator() {
     const router = UniswapV2Router02__factory.connect(ROUTER02, signer);
     if (isInputNative ) {
       user && await router.swapExactETHForTokens(
-        (BigInt(outputValue) * 9n) / 10n,
+        (BigInt(outputValue) * 9n) / 10n, // 10% slippage
         [
           selectedInputToken!.address === ZeroAddress
             ? (TokenDataList[137][1].address as `0x${string}`)
