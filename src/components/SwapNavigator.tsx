@@ -5,14 +5,17 @@ import { BsFillArrowDownCircleFill } from "react-icons/bs";
 import { TokenSelect } from "./TokenSelect";
 import { provider } from "../utils/provider";
 import { TokenData } from "../interfaces/data/token-data.interface";
-import { formatUnits, parseUnits } from "viem";
+import { formatUnits, parseEther, parseUnits } from "viem";
 import { MaxUint256, ZeroAddress } from "ethers";
 import { TokenDataList } from "../data/tokens";
-import { signer } from "../utils/signer";
-import { useAccount } from "wagmi";
+import {  useWalletClient } from "wagmi";
+import { JsonRpcSigner } from "ethers";
+import { BrowserProvider } from "ethers";
+
 
 export default function SwapNavigator() {
-  const {address:user} = useAccount();
+
+  const { data:client } = useWalletClient();
   const [inputValue, setInputValue] = useState("");
   const [outputValue, setOutputValue] = useState("");
   const [selectedInputToken, setSelectedInputToken] = useState<TokenData>();
@@ -37,10 +40,19 @@ export default function SwapNavigator() {
     return result[0];
   };
   const handleSwap = async () => { 
+    
+    const signer = client &&  new JsonRpcSigner(
+      new BrowserProvider(client.transport, {
+        chainId: client.chain.id,
+        name: client.chain.name,
+        ensAddress: client.chain.contracts?.ensRegistry?.address,
+      }),
+      client.account.address
+    );
     const router = UniswapV2Router02__factory.connect(ROUTER02, signer);
     if (isInputNative ) {
-      user && await router.swapExactETHForTokens(
-        (BigInt(outputValue) * 9n) / 10n, // 10% slippage
+      client && await router.swapExactETHForTokens(
+        0, 
         [
           selectedInputToken!.address === ZeroAddress
             ? (TokenDataList[137][1].address as `0x${string}`)
@@ -49,8 +61,8 @@ export default function SwapNavigator() {
             ? (TokenDataList[137][1].address as `0x${string}`)
             : (selectedOutputToken!.address as `0x${string}`),
         ],
-        user,
-        MaxUint256
+        client.account.address,
+        MaxUint256,{value:parseEther(inputValue)}
       ).then((tx) => tx.wait());
     } 
     
