@@ -1,31 +1,37 @@
 import { ChangeEvent, useState } from "react";
 import { ROUTER02 } from "../config/address";
-import { UniswapV2Router02__factory } from "../typechain";
+import { ERC20__factory, UniswapV2Router02__factory } from "../typechain";
 import { BsFillArrowDownCircleFill } from "react-icons/bs";
 import { TokenSelect } from "./TokenSelect";
 import { provider } from "../utils/provider";
 import { TokenData } from "../interfaces/data/token-data.interface";
-import { formatUnits,parseUnits } from "viem";
-import { ZeroAddress } from "ethers";
+import { formatUnits, parseUnits } from "viem";
+import {  ZeroAddress } from "ethers";
 import { TokenDataList } from "../data/tokens";
-import {  useWalletClient } from "wagmi";
+import { useWalletClient } from "wagmi";
 import { JsonRpcSigner } from "ethers";
 import { BrowserProvider } from "ethers";
 
-
 export default function SwapNavigator() {
-
-  const { data:client } = useWalletClient();
+  const { data: client } = useWalletClient();
   const [inputValue, setInputValue] = useState("");
   const [outputValue, setOutputValue] = useState("");
-  const [selectedInputToken, setSelectedInputToken] = useState<TokenData>();
-  const [selectedOutputToken, setSelectedOutputToken] = useState<TokenData>();
-  const [isInputNative, setIsInputNative] = useState<boolean>(false);
-  const [isOutputNative, setIsOutputNative] = useState<boolean>(false);
+  const [inputToken, setInputToken] = useState<TokenData>();
+  const [outputToken, setOutputToken] = useState<TokenData>();
   const [path, setPath] = useState<`0x${string}`[]>();
+  const [approveDone, setApproveDone] = useState(true);
 
+  const signer =
+    client &&
+    new JsonRpcSigner(
+      new BrowserProvider(client.transport, {
+        chainId: client.chain.id,
+        name: client.chain.name,
+        ensAddress: client.chain.contracts?.ensRegistry?.address,
+      }),
+      client.account.address
+    );
 
-  
   const getAmountOut = async (
     path: `0x${string}`[],
     amountIn: bigint
@@ -39,79 +45,67 @@ export default function SwapNavigator() {
     amountOut: bigint
   ): Promise<bigint> => {
     const router = UniswapV2Router02__factory.connect(ROUTER02, provider);
-    
+
     const result: bigint[] = await router.getAmountsIn(amountOut, path);
     return result[0];
   };
-  const handleSwap = async () => { 
-    
-    const signer = client &&  new JsonRpcSigner(
-      new BrowserProvider(client.transport, {
-        chainId: client.chain.id,
-        name: client.chain.name,
-        ensAddress: client.chain.contracts?.ensRegistry?.address,
-      }),
-      client.account.address
-    );
+  const handleSwap = async () => {
     const router = UniswapV2Router02__factory.connect(ROUTER02, signer);
-    //TODO: MISSION 5 
-
-
-    
-  }
-  const handleApprove = async () => { 
+    // TODO: MISSION 5
+  };
+  const handleApprove = async () => {
     //TODO: MISSION 5
   };
   const handleInputChange = async (event: ChangeEvent<HTMLInputElement>) => {
-    selectedInputToken?.address && setInputValue(event.target.value);
+    inputToken?.address && setInputValue(event.target.value);
 
-    if (selectedOutputToken?.address && event.target.value !== "0") {
+    if (outputToken?.address && event.target.value !== "0") {
       if (Number(event.target.value) !== 0) {
-        if (selectedInputToken!.address === ZeroAddress) setIsInputNative(true);
-        if(selectedOutputToken!.address === ZeroAddress) setIsOutputNative(false)
+        setInputToken(inputToken);
+        setOutputToken(outputToken);
         const srcToken =
-          selectedInputToken!.address === ZeroAddress
+          inputToken!.address === ZeroAddress
             ? (TokenDataList[137][1].address as `0x${string}`)
-            : (selectedInputToken!.address as `0x${string}`);
+            : (inputToken!.address as `0x${string}`);
         const dstToken =
-          selectedOutputToken!.address === ZeroAddress
+          outputToken!.address === ZeroAddress
             ? (TokenDataList[137][1].address as `0x${string}`)
-            : (selectedOutputToken!.address as `0x${string}`);
-        
-        setPath([srcToken,dstToken]);
+            : (outputToken!.address as `0x${string}`);
+
+        setPath([srcToken, dstToken]);
         const amountOut = await getAmountOut(
-          [srcToken,dstToken],
-          parseUnits(event.target.value, selectedInputToken!.decimals)
+          [srcToken, dstToken],
+          parseUnits(event.target.value, inputToken!.decimals)
         );
 
-        setOutputValue(formatUnits(amountOut, selectedOutputToken!.decimals));
+        setOutputValue(formatUnits(amountOut, outputToken!.decimals));
       } else {
         setOutputValue("0");
       }
     }
   };
   const handleOutputChange = async (event: ChangeEvent<HTMLInputElement>) => {
-    selectedInputToken?.address && setOutputValue(event.target.value);
-    if (selectedInputToken?.address) {
+    inputToken?.address && setOutputValue(event.target.value);
+    if (inputToken?.address) {
       if (Number(event.target.value) !== 0) {
         const amountIn = await getAmountIn(
           [
-            selectedInputToken!.address as `0x${string}`,
-            selectedOutputToken!.address as `0x${string}`,
+            inputToken!.address as `0x${string}`,
+            outputToken!.address as `0x${string}`,
           ],
-          parseUnits(event.target.value, selectedOutputToken!.decimals)
+          parseUnits(event.target.value, outputToken!.decimals)
         );
-        setInputValue(formatUnits(amountIn, selectedInputToken!.decimals));
+        setInputValue(formatUnits(amountIn, inputToken!.decimals));
       } else {
         setInputValue("0");
       }
     }
   };
   const toggleTokens = async () => {
-    const t1 = selectedInputToken;
+    const t1 = inputToken;
     const t2 = inputValue;
-    setSelectedInputToken(selectedOutputToken);
-    setSelectedOutputToken(t1);
+    setInputToken(outputToken);
+    setOutputToken(t1);
     setInputValue(outputValue);
     setOutputValue(t2);
   };
@@ -126,9 +120,9 @@ export default function SwapNavigator() {
           onChange={handleInputChange}
         />
         <TokenSelect
-          setSelectedToken={setSelectedInputToken}
-          selectedToken={selectedInputToken}
-          blockSelectedToken={selectedOutputToken}
+          setSelectedToken={setInputToken}
+          selectedToken={inputToken}
+          blockSelectedToken={outputToken}
         />
       </div>
 
@@ -142,26 +136,37 @@ export default function SwapNavigator() {
           onChange={handleOutputChange}
         />
         <TokenSelect
-          setSelectedToken={setSelectedOutputToken}
-          selectedToken={selectedOutputToken}
-          blockSelectedToken={selectedInputToken}
+          setSelectedToken={setOutputToken}
+          selectedToken={outputToken}
+          blockSelectedToken={inputToken}
         />
       </div>
 
       <div>
-        { isInputNative || isOutputNative }? <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-36 rounded"
-          onClick={handleApprove}
-        >
-          Approve
-        </button>
-        :
-        <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-36 rounded"
-          onClick={handleSwap}
-        >
-          Swap
-        </button>
+        {inputToken && inputToken.address !== ZeroAddress ? (
+          !approveDone ? (
+            <button
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-36 rounded"
+              onClick={handleApprove}
+            >
+              Approve
+            </button>
+          ) : (
+            <button
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-36 rounded"
+              onClick={handleSwap}
+            >
+              Swap
+            </button>
+          )
+        ) : (
+          <button
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-36 rounded"
+            onClick={handleSwap}
+          >
+            Swap
+          </button>
+        )}
       </div>
     </div>
   );
