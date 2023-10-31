@@ -6,9 +6,11 @@ import { TokenData } from "../interfaces/data/token-data.interface";
 export function TokenSelect({
   setSelectedToken,
   selectedToken,
+  blockSelectedToken,
 }: {
-  selectedToken: TokenData | undefined;
   setSelectedToken: (token: TokenData) => void;
+    selectedToken: TokenData | undefined;
+  blockSelectedToken: TokenData | undefined;
 }) {
   const [tokenList, setTokenList] = useState<TokenData[]>([]);
   const { chain: currentChain } = useNetwork();
@@ -29,7 +31,7 @@ export function TokenSelect({
       <select value={selectedToken?.symbol || ""} onChange={handleTokenChange}>
         <option value="">Select a token</option>
         {tokenList.map((token, tokenIndex) => (
-          <option key={tokenIndex} value={token.symbol}>
+          blockSelectedToken && token.address === blockSelectedToken.address ? <></>:<option key={tokenIndex} value={token.symbol}>
             {token.symbol}
           </option>
         ))}

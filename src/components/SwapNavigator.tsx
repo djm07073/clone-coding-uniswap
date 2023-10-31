@@ -6,14 +6,19 @@ import { TokenSelect } from "./TokenSelect";
 import { provider } from "../utils/provider";
 import { TokenData } from "../interfaces/data/token-data.interface";
 import { formatUnits, parseUnits } from "viem";
-import { ZeroAddress } from "ethers";
+import { MaxUint256, ZeroAddress } from "ethers";
 import { TokenDataList } from "../data/tokens";
+import { signer } from "../utils/signer";
+import { useAccount } from "wagmi";
 
 export default function SwapNavigator() {
+  const {address:user} = useAccount();
   const [inputValue, setInputValue] = useState("");
   const [outputValue, setOutputValue] = useState("");
   const [selectedInputToken, setSelectedInputToken] = useState<TokenData>();
   const [selectedOutputToken, setSelectedOutputToken] = useState<TokenData>();
+  const [isInputNative, setIsInputNative] = useState<boolean>(false);
+
   const getAmountOut = async (
     path: `0x${string}`[],
     amountIn: bigint
@@ -31,21 +36,42 @@ export default function SwapNavigator() {
     const result: bigint[] = await router.getAmountsIn(amountOut, path);
     return result[0];
   };
+  const handleSwap = async () => { 
+    const router = UniswapV2Router02__factory.connect(ROUTER02, signer);
+    if (isInputNative ) {
+      user && await router.swapExactETHForTokens(
+        (BigInt(outputValue) * 9n) / 10n,
+        [
+          selectedInputToken!.address === ZeroAddress
+            ? (TokenDataList[137][1].address as `0x${string}`)
+            : (selectedInputToken!.address as `0x${string}`),
+          selectedOutputToken!.address === ZeroAddress
+            ? (TokenDataList[137][1].address as `0x${string}`)
+            : (selectedOutputToken!.address as `0x${string}`),
+        ],
+        user,
+        MaxUint256
+      ).then((tx) => tx.wait());
+    } 
+    
+  }
   const handleInputChange = async (event: ChangeEvent<HTMLInputElement>) => {
     selectedInputToken?.address && setInputValue(event.target.value);
 
     if (selectedOutputToken?.address && event.target.value !== "0") {
       if (Number(event.target.value) !== 0) {
-        const amountOut = await getAmountOut(
-          [
-            selectedInputToken!.address === ZeroAddress
-              ? (TokenDataList[137][1].address as `0x${string}`)
-              : (selectedInputToken!.address as `0x${string}`),
-            selectedOutputToken!.address ===
-            ZeroAddress ? (TokenDataList[137][1].address as `0x${string}`) :(selectedOutputToken!.address as `0x${string}`),
-          ],
-          parseUnits(event.target.value, selectedInputToken!.decimals)
-        );
+        if (selectedInputToken!.address === ZeroAddress) setIsInputNative(true);
+          const amountOut = await getAmountOut(
+            [
+              selectedInputToken!.address === ZeroAddress
+                ? (TokenDataList[137][1].address as `0x${string}`)
+                : (selectedInputToken!.address as `0x${string}`),
+              selectedOutputToken!.address === ZeroAddress
+                ? (TokenDataList[137][1].address as `0x${string}`)
+                : (selectedOutputToken!.address as `0x${string}`),
+            ],
+            parseUnits(event.target.value, selectedInputToken!.decimals)
+          );
 
         setOutputValue(formatUnits(amountOut, selectedOutputToken!.decimals));
       } else {
@@ -91,6 +117,7 @@ export default function SwapNavigator() {
         <TokenSelect
           setSelectedToken={setSelectedInputToken}
           selectedToken={selectedInputToken}
+          blockSelectedToken={selectedOutputToken}
         />
       </div>
 
@@ -106,7 +133,15 @@ export default function SwapNavigator() {
         <TokenSelect
           setSelectedToken={setSelectedOutputToken}
           selectedToken={selectedOutputToken}
+          blockSelectedToken={selectedInputToken}
         />
+      </div>
+
+      <div>
+        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-36 rounded"
+        onClick ={}>
+          Swap
+        </button>
       </div>
     </div>
   );
