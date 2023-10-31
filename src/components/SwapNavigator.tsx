@@ -6,13 +6,13 @@ import { TokenSelect } from "./TokenSelect";
 import { provider } from "../utils/provider";
 import { TokenData } from "../interfaces/data/token-data.interface";
 import { formatUnits, parseUnits } from "viem";
-import { MaxUint256, ZeroAddress } from "ethers";
+import {  ZeroAddress } from "ethers";
 import { TokenDataList } from "../data/tokens";
-import { signer } from "../utils/signer";
-import { useAccount } from "wagmi";
+
+
 
 export default function SwapNavigator() {
-  const {address:user} = useAccount();
+  
   const [inputValue, setInputValue] = useState("");
   const [outputValue, setOutputValue] = useState("");
   const [selectedInputToken, setSelectedInputToken] = useState<TokenData>();
@@ -37,22 +37,7 @@ export default function SwapNavigator() {
     return result[0];
   };
   const handleSwap = async () => { 
-    const router = UniswapV2Router02__factory.connect(ROUTER02, signer);
-    if (isInputNative ) {
-      user && await router.swapExactETHForTokens(
-        (BigInt(outputValue) * 9n) / 10n,
-        [
-          selectedInputToken!.address === ZeroAddress
-            ? (TokenDataList[137][1].address as `0x${string}`)
-            : (selectedInputToken!.address as `0x${string}`),
-          selectedOutputToken!.address === ZeroAddress
-            ? (TokenDataList[137][1].address as `0x${string}`)
-            : (selectedOutputToken!.address as `0x${string}`),
-        ],
-        user,
-        MaxUint256
-      ).then((tx) => tx.wait());
-    } 
+    //TODO MISSION 4
     
   }
   const handleInputChange = async (event: ChangeEvent<HTMLInputElement>) => {
