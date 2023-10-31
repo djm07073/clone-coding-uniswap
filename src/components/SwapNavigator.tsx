@@ -5,8 +5,8 @@ import { BsFillArrowDownCircleFill } from "react-icons/bs";
 import { TokenSelect } from "./TokenSelect";
 import { provider } from "../utils/provider";
 import { TokenData } from "../interfaces/data/token-data.interface";
-import { formatUnits, parseEther, parseUnits } from "viem";
-import { MaxUint256, ZeroAddress } from "ethers";
+import { formatUnits,parseUnits } from "viem";
+import { ZeroAddress } from "ethers";
 import { TokenDataList } from "../data/tokens";
 import {  useWalletClient } from "wagmi";
 import { JsonRpcSigner } from "ethers";
@@ -21,7 +21,11 @@ export default function SwapNavigator() {
   const [selectedInputToken, setSelectedInputToken] = useState<TokenData>();
   const [selectedOutputToken, setSelectedOutputToken] = useState<TokenData>();
   const [isInputNative, setIsInputNative] = useState<boolean>(false);
+  const [isOutputNative, setIsOutputNative] = useState<boolean>(false);
+  const [path, setPath] = useState<`0x${string}`[]>();
 
+
+  
   const getAmountOut = async (
     path: `0x${string}`[],
     amountIn: bigint
@@ -50,40 +54,35 @@ export default function SwapNavigator() {
       client.account.address
     );
     const router = UniswapV2Router02__factory.connect(ROUTER02, signer);
-    if (isInputNative ) {
-      client && await router.swapExactETHForTokens(
-        0, 
-        [
-          selectedInputToken!.address === ZeroAddress
-            ? (TokenDataList[137][1].address as `0x${string}`)
-            : (selectedInputToken!.address as `0x${string}`),
-          selectedOutputToken!.address === ZeroAddress
-            ? (TokenDataList[137][1].address as `0x${string}`)
-            : (selectedOutputToken!.address as `0x${string}`),
-        ],
-        client.account.address,
-        MaxUint256,{value:parseEther(inputValue)}
-      ).then((tx) => tx.wait());
-    } 
+    //TODO: MISSION 5 
+
+
     
   }
+  const handleApprove = async () => { 
+    //TODO: MISSION 5
+  };
   const handleInputChange = async (event: ChangeEvent<HTMLInputElement>) => {
     selectedInputToken?.address && setInputValue(event.target.value);
 
     if (selectedOutputToken?.address && event.target.value !== "0") {
       if (Number(event.target.value) !== 0) {
         if (selectedInputToken!.address === ZeroAddress) setIsInputNative(true);
-          const amountOut = await getAmountOut(
-            [
-              selectedInputToken!.address === ZeroAddress
-                ? (TokenDataList[137][1].address as `0x${string}`)
-                : (selectedInputToken!.address as `0x${string}`),
-              selectedOutputToken!.address === ZeroAddress
-                ? (TokenDataList[137][1].address as `0x${string}`)
-                : (selectedOutputToken!.address as `0x${string}`),
-            ],
-            parseUnits(event.target.value, selectedInputToken!.decimals)
-          );
+        if(selectedOutputToken!.address === ZeroAddress) setIsOutputNative(false)
+        const srcToken =
+          selectedInputToken!.address === ZeroAddress
+            ? (TokenDataList[137][1].address as `0x${string}`)
+            : (selectedInputToken!.address as `0x${string}`);
+        const dstToken =
+          selectedOutputToken!.address === ZeroAddress
+            ? (TokenDataList[137][1].address as `0x${string}`)
+            : (selectedOutputToken!.address as `0x${string}`);
+        
+        setPath([srcToken,dstToken]);
+        const amountOut = await getAmountOut(
+          [srcToken,dstToken],
+          parseUnits(event.target.value, selectedInputToken!.decimals)
+        );
 
         setOutputValue(formatUnits(amountOut, selectedOutputToken!.decimals));
       } else {
@@ -150,8 +149,17 @@ export default function SwapNavigator() {
       </div>
 
       <div>
-        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-36 rounded"
-        onClick ={handleSwap}>
+        { isInputNative || isOutputNative }? <button
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-36 rounded"
+          onClick={handleApprove}
+        >
+          Approve
+        </button>
+        :
+        <button
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-36 rounded"
+          onClick={handleSwap}
+        >
           Swap
         </button>
       </div>
