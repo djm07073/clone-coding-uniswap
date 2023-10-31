@@ -21,6 +21,7 @@ export default function SwapNavigator() {
   const [inputToken, setInputToken] = useState<TokenData>();
   const [outputToken, setOutputToken] = useState<TokenData>();
   const [path, setPath] = useState<`0x${string}`[]>();
+  const [approveDone, setApproveDone] = useState(true);
 
   const signer = client &&  new JsonRpcSigner(
       new BrowserProvider(client.transport, {
@@ -69,7 +70,8 @@ export default function SwapNavigator() {
   const handleApprove = async () => { 
     
     const token = ERC20__factory.connect(inputToken!.address, signer);
-    await token.approve(ROUTER02, parseUnits(inputValue,inputToken!.decimals)).then((tx) => tx.wait());
+    await token.approve(ROUTER02, parseUnits(inputValue, inputToken!.decimals)).then((tx) => tx.wait());
+    setApproveDone(true);
     
   };
   const handleInputChange = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -139,6 +141,7 @@ export default function SwapNavigator() {
           setSelectedToken={setInputToken}
           selectedToken={inputToken}
           blockSelectedToken={outputToken}
+     
         />
       </div>
 
@@ -155,23 +158,34 @@ export default function SwapNavigator() {
           setSelectedToken={setOutputToken}
           selectedToken={outputToken}
           blockSelectedToken={inputToken}
+     
         />
       </div>
 
       <div>
-        { inputToken && inputToken.address !==ZeroAddress  ? (<button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-36 rounded"
-          onClick={handleApprove}
-        >
-          Approve
-        </button>)
-        :
-        (<button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-36 rounded"
-          onClick={handleSwap}
-        >
-          Swap
-        </button>)}
+        {inputToken && inputToken.address !== ZeroAddress ? (
+          !approveDone ?
+          <button
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-36 rounded"
+            onClick={handleApprove}
+          >
+            Approve
+          </button>
+          :
+          <button
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-36 rounded"
+            onClick={handleSwap}
+          >
+            Swap
+          </button>
+        ) : (
+          <button
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-36 rounded"
+            onClick={handleSwap}
+          >
+            Swap
+          </button>
+        )}
       </div>
     </div>
   );
