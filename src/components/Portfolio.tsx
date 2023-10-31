@@ -1,4 +1,4 @@
-import { useAccount, useBalance, useNetwork } from "wagmi";
+import { useAccount, useBalance, useNetwork, useSwitchNetwork } from "wagmi";
 import { TokenIcon } from "./TokenIcon";
 import { TokenDataList } from "../data/tokens";
 import { useEffect, useState } from "react";
@@ -28,6 +28,8 @@ export default function Portfolio() {
   const { address: user } = useAccount();
   const { data: balance } = useBalance({ address: user, chainId: 137 });
   const { chain: currentChain } = useNetwork();
+  const { switchNetwork } =
+    useSwitchNetwork();
   const [tokenList, setTokenList] = useState<TokenData[]>([]);
   const [tokenBalance, setTokenBalance] = useState<string[]>([]);
   const getBalancesList = async () => {
@@ -41,6 +43,7 @@ export default function Portfolio() {
     }
   };
   useEffect(() => {
+    switchNetwork?.(137);
     getBalancesList();
   }, [currentChain, user]);
 
