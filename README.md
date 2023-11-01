@@ -13,10 +13,20 @@
 6. @typechain/ethers-v6 설치(https://www.npmjs.com/package/@typechain/ethers-v6)
 7. 필요한 address들과 abi와 토큰 아이콘 가져오기
    ```
-   export const ROUTER02 = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff";
+    export const ROUTER02 = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff";
     export const FACTORY = "0x5757371414417b8C6CAad45bAeF941aBc7d3Ab32";
     export const USDC = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174";
     ```
+8. typechain을 쓰기 위한 ./package.json의 script 세팅
+   ```
+   "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview",
+    "typechain": "typechain --target ethers-v6 --out-dir src/typechain src/abi/**/*.json"
+   },
+   ```
 
 귀찮으면 그냥 아래와 같이 입력하세요.
 ```
@@ -25,15 +35,7 @@ npm i
 ```
 
 package.json에 script를 추가해주세요
-```
-"scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview",
-    "typechain": "typechain --target ethers-v6 --out-dir src/typechain src/abi/**/*.json"
-  },
-```
+
 ## Unsiwap Clone Coding Mission
 
 ## Mission 1. Token Portfolio 구성
