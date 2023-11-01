@@ -11,6 +11,7 @@ import { alchemyProvider } from "wagmi/providers/alchemy";
 import ConnectButton from "./components/ConnectButton";
 import Portfolio from "./components/Portfolio";
 import SwapNavigator from "./components/SwapNavigator";
+import LiquidityProvider from "./components/LiquidityProvider";
 
 // 1. Get PROJECT_ID
 const projectId = import.meta.env.VITE_PROJECT_ID;
@@ -60,8 +61,11 @@ function App() {
       <h2>Portfolio</h2>
       <Portfolio />
       {/* 3. Swap Navigator */}
-      <h2>Swap</h2>
+      <h2> Swap </h2>
       <SwapNavigator />
+      {/* 4. Liquidity Provider */}
+      <h2> Liquidity Providing </h2>
+      <LiquidityProvider />
     </WagmiConfig>
   );
 }
