@@ -3,20 +3,20 @@
 - branch는 mission-[미션넘버]-start,end로 구성되어있으니 -start branch clone해서 시도해보고 다해서 정답 코드(-end branch)랑 비교해보면 좋을 거 같아요.
 - 처음부터 너무 막막하다면 정답코드 보고 이렇게 짰구나 하고 다시 시도해보면 좋을거 같아요.
 ## Project Setting
-```
-export const ROUTER02 = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff";
-export const FACTORY = "0x5757371414417b8C6CAad45bAeF941aBc7d3Ab32";
-export const USDC = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174";
-export const WMATIC = "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270";
-```
+
 
 1. https://vitejs.dev/guide/
 2. https://tailwindcss.com/docs/guides/vite(선택 사항)
 3. [Wallet Connect Cloud](https://cloud.walletconnect.com/app)
 4. [React로 Wallet Connect Modal 시작하기](https://docs.walletconnect.com/2.0/web3modal/react/about)
 5. https://www.alchemy.com/ 로 커스텀 세팅하기
-6. typechain 설치
+6. @typechain/ethers-v6 설치(https://www.npmjs.com/package/@typechain/ethers-v6)
 7. 필요한 address들과 abi와 토큰 아이콘 가져오기
+   ```
+   export const ROUTER02 = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff";
+    export const FACTORY = "0x5757371414417b8C6CAad45bAeF941aBc7d3Ab32";
+    export const USDC = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174";
+    ```
 
 귀찮으면 그냥 아래와 같이 입력하세요.
 ```
