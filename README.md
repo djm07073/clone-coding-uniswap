@@ -1,8 +1,7 @@
 # Uniswap Clone Coding
 ## 추천하는 학습 방법
-- branch는 mission-[미션넘버]-start,end로 구성되어있으니 -start branch clone해서 시도해보고 다해서 정답 코드(-end branch)랑 비교해보고 싶다.
-- 정답코드 보고 이렇게 짰구나 하고 다시 시도해보면 좋을거 같아요.
-- 
+- branch는 mission-[미션넘버]-start,end로 구성되어있으니 -start branch clone해서 시도해보고 다해서 정답 코드(-end branch)랑 비교해보면 좋을 거 같아요.
+- 처음부터 너무 막막하다면 정답코드 보고 이렇게 짰구나 하고 다시 시도해보면 좋을거 같아요.
 ## Project Setting
 ```
 export const ROUTER02 = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff";
