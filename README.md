@@ -34,8 +34,6 @@ git clone
 npm i
 ```
 
-package.json에 script를 추가해주세요
-
 ## Unsiwap Clone Coding Mission
 
 ## Mission 1. Token Portfolio 구성
