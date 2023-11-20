@@ -62,10 +62,11 @@ export default function LiquidityProvider() {
         reserves.reserve1
       );
     };
-    const addLiquidity = async () => {
+  const addLiquidity = async () => {
+      //TODO: add liquidity
     };
     const approve = async () => { 
-      
+      //TODO: approve
     };
   const getPool = async (
     token0: TokenData,
