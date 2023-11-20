@@ -1,4 +1,4 @@
-{
+[{
       "constant": true,
       "inputs": [],
       "name": "getReserves",
@@ -22,4 +22,4 @@
       "payable": false,
       "stateMutability": "view",
       "type": "function"
-    }
+}]

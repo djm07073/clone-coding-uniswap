@@ -16,6 +16,7 @@ import { BrowserProvider } from "ethers";
 export default function LiquidityProvider() {
     const [amount0Value, setAmount0Value] = useState("");
     const [amount1Value, setAmount1Value] = useState("");
+
     const [approved, setApproved] = useState<boolean>(false);
     const [pool, setPool] = useState<string>("");
     const [token0, setToken0] = useState<TokenData>();
@@ -94,27 +95,21 @@ export default function LiquidityProvider() {
       
   };
   const approve = async () => {
-     
     if (!token0 || !token1) return;
     const token0Contract = ERC20__factory.connect(token0!.address, signer);
     const token1Contract = ERC20__factory.connect(token1!.address, signer);
-    const allowance0 = await token0Contract.allowance(ROUTER02);
-    const allowance1 = await token1Contract.allowance();
-    if (token0?.address !== ZeroAddress && )
-      await token0Contract.approve(
-        ROUTER02,
-        parseUnits(amount0Value, token0!.decimals)
-      );
+  
+    if (token0?.address !== ZeroAddress ){
+      await token0Contract.approve(  ROUTER02,  parseUnits(amount0Value, token0!.decimals));
+    }
     if (token1?.address !== ZeroAddress) {
-        
-      console.log(parseUnits(amount1Value, token1!.decimals));
       await token1Contract.approve(
         ROUTER02,
         parseUnits(amount1Value, token1!.decimals)
         );
-      }
-      setApproved(true);
-    };
+    }
+    setApproved(true);
+  };
   const getPool = async (
     token0: TokenData,
     token1: TokenData
@@ -124,10 +119,12 @@ export default function LiquidityProvider() {
     if (token1.address == ZeroAddress) return factory.getPair(token0.address, TokenDataList[137][1].address);
     return factory.getPair(token0.address, token1.address);
   };
+  
   useEffect(() => { 
     if (token0?.address && token1?.address) {
 
       getPool(token0, token1).then((pool) => setPool(pool));
+      
     }
   },[token0, token1])
     
