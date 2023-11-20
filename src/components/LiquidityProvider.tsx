@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { TokenSelect } from "./TokenSelect";
 import { TokenData } from "../interfaces/data/token-data.interface";
 import { formatUnits, parseUnits } from "viem";
-import { ERC20__factory, UniswapV2Router02__factory } from "../typechain";
+import {  UniswapV2Router02__factory } from "../typechain";
 import { FACTORY, ROUTER02 } from "../config/address";
 import { provider } from "../utils/provider";
 import { UniswapV2Factory__factory } from "../typechain/factories/UniswapV2Factory__factory";
 import { UniswapV2Pair__factory } from "../typechain/factories/UniswapV2Pair__factory";
-import { MaxUint256, ZeroAddress } from "ethers";
+import {  ZeroAddress } from "ethers";
 import { TokenDataList } from "../data/tokens";
 
 export default function LiquidityProvider() {
