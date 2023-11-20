@@ -13,7 +13,7 @@ import { TokenDataList } from "../data/tokens";
 export default function LiquidityProvider() {
     const [amount0Value, setAmount0Value] = useState("");
     const [amount1Value, setAmount1Value] = useState("");
-    const [approved, setApproved] = useState<boolean>(false);
+    
 
     const [pool, setPool] = useState<string>("");
     const [token0, setToken0] = useState<TokenData>();
@@ -114,7 +114,7 @@ export default function LiquidityProvider() {
           />
         </div>
         <div>
-          {approved ? (
+          { true ? (
             <button
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-40 rounded"
               onClick={approve}
