@@ -11,7 +11,7 @@
     "typechain": "typechain --target ethers-v6 --out-dir src/typechain src/abi/**/*.json"
   },
   "dependencies": {
-    "@typechain/ethers-v6": "^0.5.1",
+    "@typechain/ethers-v6": "0.5.1",
     "@web3modal/wagmi": "^3.1.0",
     "ethers": "^6.8.0",
     "react": "^18.2.0",

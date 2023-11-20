@@ -34,7 +34,7 @@ export function TokenSelect({
         <option value="">Select a token</option>
         {tokenList.map((token, tokenIndex) =>
           blockSelectedToken && token.address === blockSelectedToken.address ? (
-            <></>
+            <div key = {tokenIndex}></div>
           ) : (
             <option key={tokenIndex} value={token.symbol}>
               {token.symbol}
