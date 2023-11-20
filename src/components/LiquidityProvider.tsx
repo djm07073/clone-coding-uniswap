@@ -8,6 +8,7 @@ import { provider } from "../utils/provider";
 import { UniswapV2Factory__factory } from "../typechain/factories/UniswapV2Factory__factory";
 import { UniswapV2Pair__factory } from "../typechain/factories/UniswapV2Pair__factory";
 import { MaxUint256, ZeroAddress } from "ethers";
+import { TokenDataList } from "../data/tokens";
 
 export default function LiquidityProvider() {
     const [amount0Value, setAmount0Value] = useState("");
@@ -18,42 +19,50 @@ export default function LiquidityProvider() {
     const [token0, setToken0] = useState<TokenData>();
     const [token1, setToken1] = useState<TokenData>();
     const handleAmount0 = async (e: React.ChangeEvent<HTMLInputElement>) => { 
-      const amount1 = e.target.value;
-      setAmount0Value(amount1);
-      if (pool) {
-        const amount1 = await getAmount1ForAddLiquidity(
+      const amount0 = e.target.value;
+      setAmount0Value(amount0);
+      if (pool && Number(amount0) > 0) {
+        const amount1 = await getAmount1FromAmount0(
          pool,
-         parseUnits(amount0Value, token0!.decimals)
-         );
-         setAmount0Value(formatUnits(amount1, token1!.decimals));
+         parseUnits(amount0, token0!.decimals)
+        )
+        setAmount1Value(formatUnits(amount1, token1!.decimals));
       }  
     };
     const handleAmount1 = async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const amount0 = e.target.value;
-      setAmount1Value(amount0);
-      if (pool) {
-        const amount0 = await getAmount0ForAddLiquidity(pool, parseUnits(amount1Value, token1!.decimals));
+      const amount1 = e.target.value;
+      setAmount1Value(amount1);
+      if (pool && Number(amount1) > 0) {
+        const amount0 = await getAmount0FromAmount1(
+          pool,
+          parseUnits(amount1, token1!.decimals)
+        );
         setAmount0Value(formatUnits(amount0, token0!.decimals));
       }
     };
     
-    const getAmount0ForAddLiquidity = async (poolAddr:string, amount1: bigint): Promise<bigint> => { 
-      
-      const router = UniswapV2Router02__factory.connect(ROUTER02, provider);
-      const pool= UniswapV2Pair__factory.connect(poolAddr, provider);
-      const reserves = await pool.getReserves();
-      return router.quote(amount1, reserves.reserve1, reserves.reserve0);
+    const getAmount0FromAmount1 = async (poolAddr:string, amount1: bigint): Promise<bigint> => { 
+      const reserves = await UniswapV2Pair__factory
+        .connect(poolAddr, provider)
+        .getReserves();
+      return UniswapV2Router02__factory.connect(ROUTER02, provider).quote(amount1, reserves.reserve1, reserves.reserve0);
       
     };
-    const getAmount1ForAddLiquidity = async (
+    const getAmount1FromAmount0 = async (
       poolAddr: string,
       amount0: bigint
     ): Promise<bigint> => {
       
-      const router = UniswapV2Router02__factory.connect(ROUTER02, provider);
-      const pool = UniswapV2Pair__factory.connect(poolAddr, provider);
-      const reserves = await pool.getReserves();
-      return router.quote(amount0, reserves.reserve0, reserves.reserve1);
+      
+      const reserves = await UniswapV2Pair__factory.connect(
+        poolAddr,
+        provider
+      ).getReserves();
+      return UniswapV2Router02__factory.connect(ROUTER02, provider).quote(
+        amount0,
+        reserves.reserve0,
+        reserves.reserve1
+      );
     };
   const addLiquidity = async () => {
       if (!token0 || !token1) return;
@@ -77,40 +86,45 @@ export default function LiquidityProvider() {
     token1: TokenData
   ): Promise<string> => {
     const factory = UniswapV2Factory__factory.connect(FACTORY, provider);
+    if (token0.address == ZeroAddress) return factory.getPair(TokenDataList[137][1].address, token1.address);
+    if (token1.address == ZeroAddress) return factory.getPair(token0.address, TokenDataList[137][1].address);
     return factory.getPair(token0.address, token1.address);
   };
   useEffect(() => { 
     if (token0?.address && token1?.address) {
-      getPool(token0, token1).then((pool) => setPool(pool));
+
+      getPool(token0, token1).then((pool) => { console.log(pool); setPool(pool); });
     }
   },[token0, token1])
     
     return (
       <div className="flex flex-col items-center">
-        <div className="w-1 pr-2 flex flex-row justify-center m-4">
+        <div className="flex flex-row justify-center m-4">
+          <input
+            type="number"
+            className="border border-gray-300 rounded-lg p-2"
+            placeholder="0"
+            onChange={handleAmount0}
+            value={amount0Value}
+          />
           <TokenSelect
             setSelectedToken={setToken0}
             selectedToken={token0}
             blockSelectedToken={token1}
           />
+        </div>
+        <div className="flex flex-row justify-center m-4">
           <input
             type="number"
-            className="w-full border rounded px-12 py-3 text-black"
-            onChange={handleAmount0}
-            value={amount0Value}
+            className="border border-gray-300 rounded-lg p-2"
+            placeholder="0"
+            onChange={handleAmount1}
+            value={amount1Value}
           />
-        </div>
-        <div className="w-1 pl-2 flex flex-row justify-center m-4">
           <TokenSelect
             setSelectedToken={setToken1}
             selectedToken={token1}
             blockSelectedToken={token0}
-          />
-          <input
-            type="number"
-            className="w-full border rounded px-12 py-3 text-black"
-            onChange={handleAmount1}
-            value={amount1Value}
           />
         </div>
         <div>
