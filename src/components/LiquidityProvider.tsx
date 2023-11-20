@@ -52,8 +52,6 @@ export default function LiquidityProvider() {
       poolAddr: string,
       amount0: bigint
     ): Promise<bigint> => {
-      
-      
       const reserves = await UniswapV2Pair__factory.connect(
         poolAddr,
         provider
@@ -64,23 +62,11 @@ export default function LiquidityProvider() {
         reserves.reserve1
       );
     };
-  const addLiquidity = async () => {
-      if (!token0 || !token1) return;
-      const signer = await provider.getSigner();
-      const router = UniswapV2Router02__factory.connect(ROUTER02, signer);
-      if (token0?.address === ZeroAddress) await router.addLiquidityETH(token1?.address, parseUnits(amount1Value, token1!.decimals), 0, 0, signer.getAddress(), MaxUint256, {value: parseUnits(amount0Value, token0!.decimals)});
-      if (token1?.address === ZeroAddress) await router.addLiquidityETH(token0.address, parseUnits(amount0Value, token0!.decimals), 0, 0, signer.getAddress(), MaxUint256, {value: parseUnits(amount1Value, token1!.decimals)});
-      if (token0?.address !== ZeroAddress && token1?.address !== ZeroAddress) await router.addLiquidity(token0.address, token1.address, parseUnits(amount0Value, token0!.decimals), parseUnits(amount1Value, token1!.decimals), 0, 0, signer.getAddress(), MaxUint256);
+    const addLiquidity = async () => {
     };
-  const approve = async () => { 
-    if (!token0 || !token1) return;  
-    const signer = await provider.getSigner();
-    const token0Contract = ERC20__factory.connect(token0!.address, signer);
-    const token1Contract = ERC20__factory.connect(token1!.address, signer);
-    if (token0?.address !== ZeroAddress) await token0Contract.approve(ROUTER02, parseUnits(amount0Value, token0!.decimals));
-    if (token1?.address !== ZeroAddress) await token1Contract.approve(ROUTER02, parseUnits(amount1Value, token1!.decimals));
-    setApproved(true);
-  };
+    const approve = async () => { 
+      
+    };
   const getPool = async (
     token0: TokenData,
     token1: TokenData
