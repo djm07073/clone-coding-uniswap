@@ -12,6 +12,7 @@ import ConnectButton from "./components/ConnectButton";
 import Portfolio from "./components/Portfolio";
 import SwapNavigator from "./components/SwapNavigator";
 import LiquidityProvider from "./components/LiquidityProvider";
+import LPTokenBalanace from "./components/LPTokenBalanace";
 
 // 1. Get PROJECT_ID
 const projectId = import.meta.env.VITE_PROJECT_ID;
@@ -66,6 +67,10 @@ function App() {
       {/* 4. Liquidity Provider */}
       <h2> Liquidity Providing </h2>
       <LiquidityProvider />
+      <h2> LP Token Balance </h2>
+      <LPTokenBalanace />
+      <h2> Liquidity Withdraw </h2>
+      
     </WagmiConfig>
   );
 }
