@@ -7,35 +7,39 @@ import { ERC20__factory, Multicall2, Multicall2__factory } from "../typechain";
 import { MULTICALL } from "../config/address";
 import { provider } from "../utils/provider";
 import { ZeroAddress, formatUnits } from "ethers";
-const getTokenBalance = async (
-  tokens: TokenData[],
+//* 추상화 한번 더 했습니다!
+export const getTokenBalance = async (
+  tokens: string[],
   user: `0x${string}`
 ): Promise<{ blockNumber: bigint; returnData: string[] }> => {
   const multicall = Multicall2__factory.connect(MULTICALL, provider);
-  const tokenItf = ERC20__factory.createInterface();
   const data: Multicall2.CallStruct[] = [];
-  tokens.map((token) => {
-    if (token.address !== ZeroAddress) {
+  const tokenItf = ERC20__factory.createInterface();
+  for (const token of tokens) { 
+    if (token !== ZeroAddress) {
       data.push({
-        target: token.address,
+        target: token,
         callData: tokenItf.encodeFunctionData("balanceOf", [user]),
       });
     }
-  });
+  }
   return multicall.aggregate(data);
 };
+
 export default function Portfolio() {
   const { address: user } = useAccount();
   const { data: balance } = useBalance({ address: user, chainId: 137 });
   const { chain: currentChain } = useNetwork();
-  const { switchNetwork } =
-    useSwitchNetwork();
+  const { switchNetwork } = useSwitchNetwork();
   const [tokenList, setTokenList] = useState<TokenData[]>([]);
   const [tokenBalance, setTokenBalance] = useState<string[]>([]);
   const getBalancesList = async () => {
     if (currentChain && user) {
       const tokenBalances = (
-        await getTokenBalance(TokenDataList[currentChain.id], user)
+        await getTokenBalance(
+          TokenDataList[currentChain.id].map((token) => token.address),
+          user
+        )
       ).returnData;
       setTokenList(TokenDataList[currentChain.id]);
 

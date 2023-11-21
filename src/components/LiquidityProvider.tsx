@@ -13,7 +13,7 @@ import { useWalletClient } from "wagmi";
 import { JsonRpcSigner } from "ethers";
 import { BrowserProvider } from "ethers";
 
-export default function LiquidityProvider() {
+export default function LiquidityProvider({ done,setDone }: { done: boolean , setDone: React.Dispatch<React.SetStateAction<boolean>>}) {
     const [amount0Value, setAmount0Value] = useState("");
     const [amount1Value, setAmount1Value] = useState("");
 
@@ -92,6 +92,8 @@ export default function LiquidityProvider() {
         client!.account.address,
         MaxUint256
       );
+    setDone(true);
+    
       
   };
   const approve = async () => {
@@ -100,13 +102,12 @@ export default function LiquidityProvider() {
     const token1Contract = ERC20__factory.connect(token1!.address, signer);
   
     if (token0?.address !== ZeroAddress ){
-      await token0Contract.approve(  ROUTER02,  parseUnits(amount0Value, token0!.decimals));
+      await token0Contract.approve(  ROUTER02,  parseUnits(amount0Value, token0!.decimals)).then((tx) => tx.wait());
     }
     if (token1?.address !== ZeroAddress) {
-      await token1Contract.approve(
-        ROUTER02,
-        parseUnits(amount1Value, token1!.decimals)
-        );
+      await token1Contract
+        .approve(ROUTER02, parseUnits(amount1Value, token1!.decimals))
+        .then((tx) => tx.wait());
     }
     setApproved(true);
   };
@@ -122,6 +123,7 @@ export default function LiquidityProvider() {
   
   useEffect(() => { 
     if (token0?.address && token1?.address) {
+      setDone(false);
 
       getPool(token0, token1).then((pool) => setPool(pool));
       
@@ -132,7 +134,7 @@ export default function LiquidityProvider() {
       <div className="flex flex-col items-center">
         <div className="flex flex-row justify-center m-4">
           <input
-            type="number"
+            type="text"
             className="border border-gray-300 rounded-lg p-2"
             placeholder="0"
             onChange={handleAmount0}
@@ -146,7 +148,7 @@ export default function LiquidityProvider() {
         </div>
         <div className="flex flex-row justify-center m-4">
           <input
-            type="number"
+            type="text"
             className="border border-gray-300 rounded-lg p-2"
             placeholder="0"
             onChange={handleAmount1}
@@ -166,13 +168,19 @@ export default function LiquidityProvider() {
             >
               Approve
             </button>
-          ) : (
+          ) : !done ? (
             <button
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-40 rounded"
               onClick={addLiquidity}
             >
               Add Liquidity
             </button>
+          ) : (
+            <div
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-40 rounded"
+            >
+              Done! 🎉
+            </div>
           )}
         </div>
       </div>

@@ -13,6 +13,7 @@ import Portfolio from "./components/Portfolio";
 import SwapNavigator from "./components/SwapNavigator";
 import LiquidityProvider from "./components/LiquidityProvider";
 import LPTokenBalanace from "./components/LPTokenBalanace";
+import { useState } from "react";
 
 // 1. Get PROJECT_ID
 const projectId = import.meta.env.VITE_PROJECT_ID;
@@ -52,6 +53,7 @@ const wagmiConfig = createConfig({
 createWeb3Modal({ wagmiConfig, projectId, chains });
 
 function App() {
+  const [done, setDone] = useState<boolean>(false);
   return (
     <WagmiConfig config={wagmiConfig}>
       <h1>Uniswap Clone</h1>
@@ -66,7 +68,7 @@ function App() {
       <SwapNavigator />
       {/* 4. Liquidity Provider */}
       <h2> Liquidity Providing </h2>
-      <LiquidityProvider />
+      <LiquidityProvider done={done} setDone={setDone} />
       <h2> LP Token Balance </h2>
       <LPTokenBalanace />
       <h2> Liquidity Withdraw </h2>
