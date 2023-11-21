@@ -1,16 +1,12 @@
 import { useState } from "react";
 import { TokenData } from "../interfaces/data/token-data.interface";
 import { TokenIcon } from "./TokenIcon";
-import { ERC20__factory, Multicall2__factory, UniswapV2Factory__factory, UniswapV2Router02__factory} from "../typechain";
+import { ERC20__factory, Multicall2__factory, UniswapV2Factory__factory} from "../typechain";
 import { provider } from "../utils/provider";
-import { FACTORY, MULTICALL, ROUTER02,} from "../config/address";
-import { MaxUint256,formatUnits} from "ethers";
-import { useNetwork,  useSignTypedData,  useWalletClient } from "wagmi";
-import { JsonRpcSigner } from "ethers";
-import { BrowserProvider } from "ethers";
+import { FACTORY, MULTICALL} from "../config/address";
+import { formatUnits} from "ethers";
+import { useNetwork,  useWalletClient } from "wagmi";
 
-import { useSignPermit } from "../hooks/useSignPermit";
-import { setNonce } from "viem/actions";
 
 export default function WithdrawLP({
   selectedLP,
@@ -23,8 +19,7 @@ export default function WithdrawLP({
     const [withdrawableA, setWithdrawableA] = useState<bigint>(0n);
     const [withdrawableB, setWithdrawableB] = useState<bigint>(0n);
     const [withdrawableLP, setWithdrawableLP] = useState<{ address: string, amount: bigint }>();
-    const [nonce, setNonce] = useState<bigint>();
-    const { data :signatureHex } = useSignTypedData();
+  
     const calcWithdraw = async () => {
         const factory = UniswapV2Factory__factory.connect(FACTORY, provider);
         const lpAmount = (selectedLP!.balance * BigInt(percent)) / 100n;
@@ -52,45 +47,10 @@ export default function WithdrawLP({
         setWithdrawableB(amountB);
         setWithdrawableLP({ address: pairAddress, amount: lpAmount });
     };
-    const handleNonce = async () => {
-        if (!client || !withdrawableLP?.amount) return;
-        const lpAddr = withdrawableLP.address;
-    
-        const lpToken = ERC20__factory.connect(lpAddr, provider);
-        const nonce = await lpToken.nonces(client.account.address);
-        signatureHex
-        setNonce(nonce);
-    }
-    const removeLiquidity = async () => {
+    const removeLiquidityWithPermit = async () => {
         
-        if (!client || !withdrawableLP?.amount) return;
-        const signer =
-        client &&
-        new JsonRpcSigner(
-          new BrowserProvider(client.transport, {
-            chainId: client.chain.id,
-            name: client.chain.name,
-            ensAddress: client.chain.contracts?.ensRegistry?.address,
-          }),
-          client.account.address
-        );
-        const lpAmount = withdrawableLP.amount;
-
-
-        const router  = UniswapV2Router02__factory.connect(ROUTER02, signer);
-        withdrawableLP && await router.removeLiquidityWithPermit(
-          selectedLP!.pair[0].address,
-          selectedLP!.pair[1].address,
-          lpAmount,
-          0,
-          0,
-          client.account.address,
-          deadline,
-          true,
-          splitSig.v,
-          splitSig.r,
-          splitSig.s
-        ).then((tx)=>tx.wait());
+      if (!client || !withdrawableLP?.amount) return;
+      
     };
     
   return (
@@ -145,7 +105,7 @@ export default function WithdrawLP({
 
       <button
         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-36 rounded"
-        onClick={removeLiquidity}
+        onClick={removeLiquidityWithPermit}
       >
         Withdraw
       </button>
