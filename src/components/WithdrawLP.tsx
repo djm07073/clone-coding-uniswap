@@ -43,6 +43,9 @@ export default function WithdrawLP({
         setWithdrawableB(amountB);
         setWithdrawableLP(lpAmount);
     };
+    const removeLiquidity = async () => {
+      //TODO : remove liquidity
+    };
     
   return (
     <div>
@@ -95,8 +98,8 @@ export default function WithdrawLP({
       )}
 
       <button
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-36 rounded"
-        //   onClick={withdraw}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-36 rounded"
+              onClick={removeLiquidity}
       >
         Withdraw
       </button>
