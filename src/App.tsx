@@ -56,7 +56,7 @@ createWeb3Modal({ wagmiConfig, projectId, chains });
 
 function App() {
   const [done, setDone] = useState<boolean>(false);
-  const [selectedLP, setSelectedLP] = useState<TokenData[]>();
+  const [selectedLP, setSelectedLP] = useState < { pair: TokenData[] ,balance: bigint} >();
   return (
     <WagmiConfig config={wagmiConfig}>
       <h1>Uniswap Clone</h1>
