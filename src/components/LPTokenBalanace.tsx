@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import  { useEffect, useState } from 'react';
 import { useAccount, useNetwork } from 'wagmi';
 import { TokenData } from '../interfaces/data/token-data.interface';
 import { TokenDataList } from '../data/tokens';
@@ -10,13 +10,12 @@ import { TokenIcon } from './TokenIcon';
 import { provider } from '../utils/provider';
 import { slice } from 'viem';
 
-export default function LPTokenBalanace() {
+export default function LPTokenBalanace({setSelectedLP}: {setSelectedLP: (pair:TokenData[]) => void }) {
 
     const { chain: currentChain } = useNetwork();
     const { address: user } = useAccount();
     const [pairList, setPairList] = useState<TokenData[][]>([]); //* lp token으로 쌍으로 저장함.
     const [lpTokenBalance, setLPTokenBalance] = useState<bigint[]>([]);
-
     const getLPTokenData = (): undefined | TokenData[][] => {
       const lpDatas =
         currentChain &&
@@ -49,17 +48,15 @@ export default function LPTokenBalanace() {
               ]),
             });
         }
-       
         return (await multicall
           .aggregate(data)
           .then((res) => res[1])).map((s)=>slice(s as `0x${string}`, 12, 66)); // 결과가 bytes로 나와서 address에 맞게 하려면 12번째부터 66번째까지 자름.
     };
 
     const getLPBalancesList = async (pairDatas: TokenData[][]) => {
-        const lpAddrs = await getLPs(pairDatas);
+      const lpAddrs = await getLPs(pairDatas);
         const balances = user && await getTokenBalance(lpAddrs, user).then((res) => res.returnData);
         const lpTokenBalance = balances && balances.map((s) => BigInt(s)); // getTokenBalance 함수는 Portfolio.tsx에서 가져옴
-        
         lpTokenBalance && setLPTokenBalance(lpTokenBalance);
     };
     useEffect(() => {
@@ -74,12 +71,16 @@ export default function LPTokenBalanace() {
           lpTokenBalance &&
                 pairList.map((pair, i) => (
                 (lpTokenBalance[i] > 0n) ? 
-                <div key={i} className="flex flex-row">
+                    <button key={i} className="flex flex-row" onClick={
+                      () => {
+                        setSelectedLP(pairList[i]);
+                      }
+                }> 
                   LP
                   <TokenIcon token={pair[0]} size="md" />
                   <TokenIcon token={pair[1]} size="md" />
                   <div>{formatUnits(lpTokenBalance[i], 18)}</div>
-                </div>
+                </button>
                 : <div></div>
           ))
         ) : (
