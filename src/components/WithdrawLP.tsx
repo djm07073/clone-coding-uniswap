@@ -21,17 +21,17 @@ export default function WithdrawLP({ selectedLP }: { selectedLP: TokenData[] | u
           <span className="text-sm text-gray-500 dark:text-gray-300">100%</span>
         </div>
         {selectedLP && (
-          <div>
-            <div>Expected to receive</div>
-            <div className="flex flex-row">
-              <TokenIcon token={selectedLP[0]} size="md" />
-              balance
+            <div>
+                <div>Expected to receive</div>
+                <div className="flex flex-row">
+                  <TokenIcon token={selectedLP[0]} size="md" />
+                  balance
+                </div>
+                <div className="flex flex-row">
+                  <TokenIcon token={selectedLP[1]} size="md" />
+                  balance
+                </div>
             </div>
-            <div className="flex flex-row">
-              <TokenIcon token={selectedLP[1]} size="md" />
-              balance
-            </div>
-        </div>
         )}
             
         <button
