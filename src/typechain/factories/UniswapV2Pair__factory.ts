@@ -31,6 +31,7 @@ const _abi = [
     stateMutability: "view",
     type: "function",
   },
+  {},
 ] as const;
 
 export class UniswapV2Pair__factory {

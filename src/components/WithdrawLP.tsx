@@ -1,10 +1,9 @@
-import { ChangeEvent, useState } from "react";
+import { useState } from "react";
 import { TokenData } from "../interfaces/data/token-data.interface";
 import { TokenIcon } from "./TokenIcon";
-import { UniswapV2Router02__factory } from "../typechain";
+import { ERC20__factory, UniswapV2Factory__factory} from "../typechain";
 import { provider } from "../utils/provider";
-import { ROUTER02 } from "../config/address";
-import { useWalletClient } from "wagmi";
+import { FACTORY,} from "../config/address";
 import { formatUnits } from "ethers";
 
 export default function WithdrawLP({
@@ -12,12 +11,22 @@ export default function WithdrawLP({
 }: {
   selectedLP: { pair: TokenData[]; balance: bigint } | undefined;
     }) {
-    const { data: client } = useWalletClient();
     const [percent, setPercent] = useState<number>(0);
-    const [balanceA, setBalanceA] = useState<bigint>(0n);
-    const [balanceB, setBalanceB] = useState<bigint>(0n);
-    const handleWithdraw = async (e: ChangeEvent<HTMLInputElement>) => {
-        setPercent(Number(e.target.value));
+    const [withdrawableA, setWithdrawableA] = useState<bigint>(0n);
+    const [withdrawableB, setWithdrawableB] = useState<bigint>(0n);
+    const calcWithdraw = async () => {
+        const factory = UniswapV2Factory__factory.connect(FACTORY, provider);
+        const lpAmount = (selectedLP!.balance * BigInt(percent)) / 100n;
+        const pairAddress = await factory.getPair(selectedLP!.pair[0].address, selectedLP!.pair[1].address);
+        const lpToken = ERC20__factory.connect(pairAddress, provider);
+        const total = await lpToken.totalSupply();
+        const balanceA = await ERC20__factory.connect(selectedLP!.pair[0].address, provider).balanceOf(pairAddress);
+        const balanceB = await ERC20__factory.connect(selectedLP!.pair[1].address, provider).balanceOf(pairAddress);
+        const amountA = (balanceA * lpAmount  / total);
+        const amountB = (balanceB * lpAmount) / total;
+        console.log(amountA, amountB)
+        setWithdrawableA(amountA);
+        setWithdrawableB(amountB);
     };
   return (
     <div>
@@ -30,7 +39,10 @@ export default function WithdrawLP({
           min="0"
           type="range"
           value={percent}
-          onChange={handleWithdraw}
+          onChange={(e) => {
+            setPercent(Number(e.target.value));
+            selectedLP && calcWithdraw();
+          }}
         />
         <span className="text-sm text-gray-500 dark:text-gray-300">100%</span>
       </div>
@@ -39,13 +51,12 @@ export default function WithdrawLP({
           <div>Expected to receive</div>
           <div className="flex flex-row">
             <TokenIcon token={selectedLP.pair[0]} size="md" />
-            {formatUnits(balanceA, selectedLP.pair[0].decimals)} //TODO: 를
-            가져오는 함수를 만들어야 함.
+            {formatUnits(withdrawableA, selectedLP.pair[0].decimals)} 
+            
           </div>
           <div className="flex flex-row">
             <TokenIcon token={selectedLP.pair[1]} size="md" />
-            {formatUnits(balanceA, selectedLP.pair[0].decimals)}//TODO:
-            balance를 가져오는 함수를 만들어야 함.
+            {formatUnits(withdrawableB, selectedLP.pair[1].decimals)}
           </div>
         </div>
       )}
