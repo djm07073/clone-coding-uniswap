@@ -61,6 +61,8 @@ export default function WithdrawLP({
             client.account.address
           );
         const router = UniswapV2Router02__factory.connect(ROUTER02, signer);
+
+        router
     };
     
   return (
@@ -68,19 +70,19 @@ export default function WithdrawLP({
       <div className="flex flex-row">
         <button onClick={() => {
             setPercent(25);
-            calcWithdraw();
+            selectedLP && calcWithdraw();
         }}>25%</button>
         <button onClick = {() => {
           setPercent(50);
-          calcWithdraw();
+          selectedLP && calcWithdraw();
         }}>50%</button>
         <button onClick = {() => {
           setPercent(75);
-          calcWithdraw();
+          selectedLP && calcWithdraw();
         }}>75%</button>
         <button onClick={() => {
             setPercent(100);
-            calcWithdraw();
+            selectedLP && calcWithdraw();
         }}>100%</button>
       </div>
       <div className="flex items-center space-x-4">
