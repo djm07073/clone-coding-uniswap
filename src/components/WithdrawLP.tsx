@@ -1,16 +1,20 @@
 import { useState } from "react";
 import { TokenData } from "../interfaces/data/token-data.interface";
 import { TokenIcon } from "./TokenIcon";
-import { ERC20__factory, Multicall2__factory, UniswapV2Factory__factory} from "../typechain";
+import { ERC20__factory, Multicall2__factory, UniswapV2Factory__factory, UniswapV2Router02__factory} from "../typechain";
 import { provider } from "../utils/provider";
-import { FACTORY, MULTICALL,} from "../config/address";
+import { FACTORY, MULTICALL, ROUTER02,} from "../config/address";
 import { formatUnits } from "ethers";
+import { useWalletClient } from "wagmi";
+import { JsonRpcSigner } from "ethers";
+import { BrowserProvider } from "ethers";
 
 export default function WithdrawLP({
   selectedLP,
 }: {
   selectedLP: { pair: TokenData[]; balance: bigint } | undefined;
     }) {
+    const {data:client } = useWalletClient();
     const [percent, setPercent] = useState<number>(0);
     const [withdrawableA, setWithdrawableA] = useState<bigint>(0n);
     const [withdrawableB, setWithdrawableB] = useState<bigint>(0n);
@@ -44,7 +48,19 @@ export default function WithdrawLP({
         setWithdrawableLP(lpAmount);
     };
     const removeLiquidity = async () => {
-      //TODO : remove liquidity
+        //TODO : remove liquidity
+        
+        const signer =
+          client &&
+          new JsonRpcSigner(
+            new BrowserProvider(client.transport, {
+              chainId: client.chain.id,
+              name: client.chain.name,
+              ensAddress: client.chain.contracts?.ensRegistry?.address,
+            }),
+            client.account.address
+          );
+        const router = UniswapV2Router02__factory.connect(ROUTER02, signer);
     };
     
   return (
@@ -98,8 +114,8 @@ export default function WithdrawLP({
       )}
 
       <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-36 rounded"
-              onClick={removeLiquidity}
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-36 rounded"
+        onClick={removeLiquidity}
       >
         Withdraw
       </button>
