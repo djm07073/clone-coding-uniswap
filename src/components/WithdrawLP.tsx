@@ -21,19 +21,24 @@ export default function WithdrawLP({ selectedLP }: { selectedLP: TokenData[] | u
           <span className="text-sm text-gray-500 dark:text-gray-300">100%</span>
         </div>
         {selectedLP && (
-            <div>
-                <div>Withdraw</div>
-                <div className="flex flex-row">
-                        <TokenIcon token={selectedLP[0]} size="md" />
-                        balance
-                </div>
-                <div className="flex flex-row">
-
-                        <TokenIcon token={selectedLP[1]} size="md" />
-                        balance
-                </div>
+          <div>
+            <div>Withdraw</div>
+            <div className="flex flex-row">
+              <TokenIcon token={selectedLP[0]} size="md" />
+              balance
+            </div>
+            <div className="flex flex-row">
+              <TokenIcon token={selectedLP[1]} size="md" />
+              balance
+            </div>
           </div>
         )}
+        <button
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-36 rounded"
+        //   onClick={withdraw}
+        >
+         Withdraw 
+        </button>
       </div>
     );
 }
