@@ -14,6 +14,7 @@ import SwapNavigator from "./components/SwapNavigator";
 import LiquidityProvider from "./components/LiquidityProvider";
 import LPTokenBalanace from "./components/LPTokenBalanace";
 import { useState } from "react";
+import WithdrawLP from "./components/WithdrawLP";
 
 // 1. Get PROJECT_ID
 const projectId = import.meta.env.VITE_PROJECT_ID;
@@ -72,6 +73,7 @@ function App() {
       <h2> LP Token Balance </h2>
       <LPTokenBalanace />
       <h2> Liquidity Withdraw </h2>
+      <WithdrawLP />
       
     </WagmiConfig>
   );
