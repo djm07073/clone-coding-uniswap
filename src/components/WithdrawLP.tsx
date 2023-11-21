@@ -14,6 +14,7 @@ export default function WithdrawLP({
     const [percent, setPercent] = useState<number>(0);
     const [withdrawableA, setWithdrawableA] = useState<bigint>(0n);
     const [withdrawableB, setWithdrawableB] = useState<bigint>(0n);
+    const [withdrawableLP, setWithdrawableLP] = useState<bigint>(0n);
     const calcWithdraw = async () => {
         const factory = UniswapV2Factory__factory.connect(FACTORY, provider);
         const lpAmount = (selectedLP!.balance * BigInt(percent)) / 100n;
@@ -40,7 +41,9 @@ export default function WithdrawLP({
         console.log(amountA, amountB)
         setWithdrawableA(amountA);
         setWithdrawableB(amountB);
+        setWithdrawableLP(lpAmount);
     };
+    
   return (
     <div>
       <div className="flex flex-row">
