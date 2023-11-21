@@ -74,7 +74,7 @@ export default function LPTokenBalanace({
       {user ? (
         lpTokenBalance &&
         pairList.map((pair, i) =>
-          lpTokenBalance[i] > 0n ? (
+          lpTokenBalance[i] > 0n && (
             <button
               key={i}
               className="flex flex-row"
@@ -87,8 +87,6 @@ export default function LPTokenBalanace({
               <TokenIcon token={pair[1]} size="md" />
               <div>{formatUnits(lpTokenBalance[i], 18)}</div>
             </button>
-          ) : (
-            <div></div>
           )
         )
       ) : (
