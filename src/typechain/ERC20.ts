@@ -23,7 +23,13 @@ import type {
 
 export interface ERC20Interface extends Interface {
   getFunction(
-    nameOrSignature: "balanceOf" | "approve" | "allowance" | "totalSupply"
+    nameOrSignature:
+      | "balanceOf"
+      | "approve"
+      | "allowance"
+      | "totalSupply"
+      | "name"
+      | "nonces"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -42,6 +48,8 @@ export interface ERC20Interface extends Interface {
     functionFragment: "totalSupply",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "name", values?: undefined): string;
+  encodeFunctionData(functionFragment: "nonces", values: [AddressLike]): string;
 
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
@@ -50,6 +58,8 @@ export interface ERC20Interface extends Interface {
     functionFragment: "totalSupply",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "nonces", data: BytesLike): Result;
 }
 
 export interface ERC20 extends BaseContract {
@@ -111,6 +121,10 @@ export interface ERC20 extends BaseContract {
 
   totalSupply: TypedContractMethod<[], [bigint], "view">;
 
+  name: TypedContractMethod<[], [string], "view">;
+
+  nonces: TypedContractMethod<[owner: AddressLike], [bigint], "view">;
+
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
   ): T;
@@ -135,6 +149,12 @@ export interface ERC20 extends BaseContract {
   getFunction(
     nameOrSignature: "totalSupply"
   ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "name"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "nonces"
+  ): TypedContractMethod<[owner: AddressLike], [bigint], "view">;
 
   filters: {};
 }

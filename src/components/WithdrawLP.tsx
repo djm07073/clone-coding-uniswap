@@ -4,25 +4,27 @@ import { TokenIcon } from "./TokenIcon";
 import { ERC20__factory, Multicall2__factory, UniswapV2Factory__factory, UniswapV2Router02__factory} from "../typechain";
 import { provider } from "../utils/provider";
 import { FACTORY, MULTICALL, ROUTER02,} from "../config/address";
-import { formatUnits } from "ethers";
-import { useWalletClient } from "wagmi";
+import { MaxUint256, formatUnits, verifyTypedData } from "ethers";
+import { useNetwork, useWalletClient } from "wagmi";
 import { JsonRpcSigner } from "ethers";
 import { BrowserProvider } from "ethers";
+import { TypedDataDomain } from "viem";
+import { Signature } from "ethers";
 
 export default function WithdrawLP({
   selectedLP,
 }: {
   selectedLP: { pair: TokenData[]; balance: bigint } | undefined;
     }) {
+    const {chain:curChain } = useNetwork();
     const {data:client } = useWalletClient();
     const [percent, setPercent] = useState<number>(0);
     const [withdrawableA, setWithdrawableA] = useState<bigint>(0n);
     const [withdrawableB, setWithdrawableB] = useState<bigint>(0n);
-    const [withdrawableLP, setWithdrawableLP] = useState<bigint>(0n);
+    const [withdrawableLP, setWithdrawableLP] = useState<{ address :string,amount: bigint }>();
     const calcWithdraw = async () => {
         const factory = UniswapV2Factory__factory.connect(FACTORY, provider);
         const lpAmount = (selectedLP!.balance * BigInt(percent)) / 100n;
-        console.log(lpAmount)
         const pairAddress = await factory.getPair(selectedLP!.pair[0].address, selectedLP!.pair[1].address);
         const tokenItf = ERC20__factory.createInterface();
         const multicall = Multicall2__factory.connect(MULTICALL, provider);
@@ -42,27 +44,89 @@ export default function WithdrawLP({
         ]).then((res) => res[1]);
         const amountA = (BigInt(balanceA) * lpAmount  / BigInt(total));
         const amountB = (BigInt(balanceB) * lpAmount / BigInt(total));
-        console.log(amountA, amountB)
+        
         setWithdrawableA(amountA);
         setWithdrawableB(amountB);
-        setWithdrawableLP(lpAmount);
+        setWithdrawableLP({ address:pairAddress,amount: lpAmount });
     };
     const removeLiquidity = async () => {
-        //TODO : remove liquidity
+        if (!client || !withdrawableLP) return;
+      const signer =
+        client &&
+        new JsonRpcSigner(
+          new BrowserProvider(client.transport, {
+            chainId: client.chain.id,
+            name: client.chain.name,
+            ensAddress: client.chain.contracts?.ensRegistry?.address,
+          }),
+          client.account.address
+        );
+        const lpAddr = withdrawableLP.address;
+        const lpAmount = withdrawableLP.amount;
+        const lpToken = ERC20__factory.connect(lpAddr, signer);
         
-        const signer =
-          client &&
-          new JsonRpcSigner(
-            new BrowserProvider(client.transport, {
-              chainId: client.chain.id,
-              name: client.chain.name,
-              ensAddress: client.chain.contracts?.ensRegistry?.address,
-            }),
-            client.account.address
-          );
-        const router = UniswapV2Router02__factory.connect(ROUTER02, signer);
+      // set the domain parameters
+      const domain: TypedDataDomain = {
+        name: await lpToken.name(),
+        version: "1",
+        chainId: curChain?.id,
+        verifyingContract: lpAddr as `0x${string}`,
+      };
+        const nonces = await lpToken.nonces(client.account.address);
+        const deadline = MaxUint256;
+      // set the Permit type parameters
+      const types = {
+        Permit: [
+          {
+            name: "owner",
+            type: "address",
+          },
+          {
+            name: "spender",
+            type: "address",
+          },
+          {
+            name: "value",
+            type: "uint256",
+          },
+          {
+            name: "nonce",
+            type: "uint256",
+          },
+          {
+            name: "deadline",
+            type: "uint256",
+          },
+        ],
+      };
 
-        router
+      // set the Permit type values
+        const values = {
+          owner: client?.account.address,
+          spender: ROUTER02,
+          value: lpAmount,
+          nonce: nonces,
+          deadline: deadline,
+        };
+      
+    const sig = await signer?.signTypedData(domain, types, values);
+    const splitSig =  Signature.from(sig);
+    const recovered = verifyTypedData(domain, types, values, sig);
+    console.log("recover",recovered);
+    const router = UniswapV2Router02__factory.connect(ROUTER02, signer);
+    withdrawableLP && await router.removeLiquidityWithPermit(
+      selectedLP!.pair[0].address,
+      selectedLP!.pair[1].address,
+      lpAmount,
+      0,
+      0,
+      client.account.address,
+      deadline,
+      true,
+      splitSig.v,
+      splitSig.r,
+      splitSig.s
+    ).then((tx)=>tx.wait());
     };
     
   return (
