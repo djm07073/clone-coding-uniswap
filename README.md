@@ -31,7 +31,9 @@
 귀찮으면 그냥 아래와 같이 입력하세요.
 ```
 git clone
-npm i
+다른 브랜치로 이동할때 마다 
+   npm i
+   npm run typechain
 ```
 
 ## Unsiwap Clone Coding Mission
@@ -62,10 +64,22 @@ npm i
 
 ## Mission 7. 유동성 공급 계산해주는 기능
 
-## Mission 8. 유동성 출금하는  UI
+## Mission 8. 나의 LP token 조회기능
 
-## Mission 9. 유동성 출금하는 기능 구현
+## Mission 9. 유동성 출금  UI
 
-## Mission 10. React Router로 페이지 구성하기
+## Mission 10. 유동성 출금양 계산하는 기능 구현
+- 출금을 `removeLiquidityWithPermit`을 이용해서 해보세요
 
-## Mission 11. 디자인입히기
+## Mission 11. 유동성 출금 기능
+--------
+
+# 휴회과제 
+## Mission 12. 기능 수정하고 github issue로 남겨주세요!
+
+- 현재 출금의 경우 네이티브 코인으로 출금하는 것이 불가능한 상태 한번 추가해보세요~
+- 여러가지로 최적화가 안되어있을 수 있음. 어떻게 하면 최적화할지 고민하기
+
+## Mission 13. 리펙토링 & React Router로 페이지 구성하기
+
+## Mission 14. 디자인하기
