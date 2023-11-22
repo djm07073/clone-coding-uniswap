@@ -12,10 +12,10 @@ import ConnectButton from "./components/ConnectButton";
 import Portfolio from "./components/Portfolio";
 import SwapNavigator from "./components/SwapNavigator";
 import LiquidityProvider from "./components/LiquidityProvider";
-import LPTokenBalanace from "./components/LPTokenBalanace";
 import { useState } from "react";
 import WithdrawLP from "./components/WithdrawLP";
 import { TokenData } from "./interfaces/data/token-data.interface";
+import LPPortFolio from "./components/LPPortfolio";
 
 // 1. Get PROJECT_ID
 const projectId = import.meta.env.VITE_PROJECT_ID;
@@ -55,7 +55,9 @@ const wagmiConfig = createConfig({
 createWeb3Modal({ wagmiConfig, projectId, chains });
 
 function App() {
-  const [done, setDone] = useState<boolean>(false);
+  const [lpdone, setLPDone] = useState<boolean>(false);
+  const [withdrawDone, setWithdrawDone] = useState<boolean>(false);
+  const [swapDone, setSwapDone] = useState<boolean>(false);
   const [selectedLP, setSelectedLP] = useState < { pair: TokenData[] ,balance: bigint} >();
   return (
     <WagmiConfig config={wagmiConfig}>
@@ -65,18 +67,25 @@ function App() {
       <ConnectButton />
       {/* 2.Portfolio (token amount > 0.000001) */}
       <h2>Portfolio</h2>
-      <Portfolio />
+      <Portfolio lpDone={lpdone} withdrawDone={withdrawDone} swapDone={swapDone} />
       {/* 3. Swap Navigator */}
       <h2> Swap </h2>
-      <SwapNavigator />
+      <SwapNavigator swapDone = {swapDone} setSwapDone = {setSwapDone} />
       {/* 4. Liquidity Provider */}
       <h2> Liquidity Providing </h2>
-      <LiquidityProvider done={done} setDone={setDone} />
+      <LiquidityProvider lpdone={lpdone} setLPDone={setLPDone} />
       <h2> LP Token Balance </h2>
-      <LPTokenBalanace setSelectedLP={setSelectedLP} />
+      <LPPortFolio
+        setSelectedLP={setSelectedLP}
+        lpdone={lpdone}
+        withdrawDone={withdrawDone}
+      />
       <h2> Liquidity Withdraw </h2>
-      <WithdrawLP selectedLP={selectedLP} />
-      
+      <WithdrawLP
+        selectedLP={selectedLP}
+        setWithdrawDone={setWithdrawDone}
+        withdrawDone={withdrawDone}
+      />
     </WagmiConfig>
   );
 }

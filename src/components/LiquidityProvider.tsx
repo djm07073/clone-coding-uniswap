@@ -13,7 +13,7 @@ import { useWalletClient } from "wagmi";
 import { JsonRpcSigner } from "ethers";
 import { BrowserProvider } from "ethers";
 
-export default function LiquidityProvider({ done,setDone }: { done: boolean , setDone: React.Dispatch<React.SetStateAction<boolean>>}) {
+export default function LiquidityProvider({ lpdone,setLPDone }: { lpdone: boolean , setLPDone: React.Dispatch<React.SetStateAction<boolean>>}) {
     const [amount0Value, setAmount0Value] = useState("");
     const [amount1Value, setAmount1Value] = useState("");
 
@@ -80,8 +80,8 @@ export default function LiquidityProvider({ done,setDone }: { done: boolean , se
    
     if (!token0 || !token1) return;
       const router = UniswapV2Router02__factory.connect(ROUTER02, signer);
-      if (token0?.address === ZeroAddress) await router.addLiquidityETH(token1?.address, parseUnits(amount1Value, token1!.decimals), 0, 0, client!.account.address, MaxUint256, {value: parseUnits(amount0Value, token0!.decimals)});
-      if (token1?.address === ZeroAddress) await router.addLiquidityETH(token0.address, parseUnits(amount0Value, token0!.decimals), 0, 0, client!.account.address, MaxUint256, {value: parseUnits(amount1Value, token1!.decimals)});
+      if (token0?.address === ZeroAddress) await router.addLiquidityETH(token1?.address, parseUnits(amount1Value, token1!.decimals), 0, 0, client!.account.address, MaxUint256, {value: parseUnits(amount0Value, token0!.decimals)}).then((tx) => tx.wait());
+      if (token1?.address === ZeroAddress) await router.addLiquidityETH(token0.address, parseUnits(amount0Value, token0!.decimals), 0, 0, client!.account.address, MaxUint256, {value: parseUnits(amount1Value, token1!.decimals)}).then((tx) => tx.wait());
       if (token0?.address !== ZeroAddress && token1?.address !== ZeroAddress) await router.addLiquidity(
         token0.address,
         token1.address,
@@ -91,8 +91,8 @@ export default function LiquidityProvider({ done,setDone }: { done: boolean , se
         0,
         client!.account.address,
         MaxUint256
-      );
-    setDone(true);
+      ).then((tx) => tx.wait());
+    setLPDone(true);
     
       
   };
@@ -123,7 +123,7 @@ export default function LiquidityProvider({ done,setDone }: { done: boolean , se
   
   useEffect(() => { 
     if (token0?.address && token1?.address) {
-      setDone(false);
+      setLPDone(false);
 
       getPool(token0, token1).then((pool) => setPool(pool));
       
@@ -168,7 +168,7 @@ export default function LiquidityProvider({ done,setDone }: { done: boolean , se
             >
               Approve
             </button>
-          ) : !done ? (
+          ) : !lpdone ? (
             <button
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-40 rounded"
               onClick={addLiquidity}

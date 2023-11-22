@@ -13,7 +13,9 @@ import { JsonRpcSigner } from "ethers";
 import { BrowserProvider } from "ethers";
 
 
-export default function SwapNavigator() {
+export default function SwapNavigator(
+  {swapDone,setSwapDone}: {swapDone: boolean, setSwapDone: React.Dispatch<React.SetStateAction<boolean>>}
+) {
 
   const { data:client } = useWalletClient();
   const [inputValue, setInputValue] = useState("");
@@ -59,11 +61,13 @@ export default function SwapNavigator() {
       await router
         .swapExactTokensForETH(parseUnits(inputValue,inputToken!.decimals),0, path!, client!.account.address, MaxUint256)
         .then((tx) => tx.wait());
+      setSwapDone(true);
       
     } else {
       await router
         .swapExactTokensForTokens(parseUnits(inputValue,inputToken!.decimals),0, path!, client!.account.address, MaxUint256)
         .then((tx) => tx.wait());
+      setSwapDone(true);
     }
     
   }
@@ -141,7 +145,6 @@ export default function SwapNavigator() {
           setSelectedToken={setInputToken}
           selectedToken={inputToken}
           blockSelectedToken={outputToken}
-     
         />
       </div>
 
@@ -158,20 +161,27 @@ export default function SwapNavigator() {
           setSelectedToken={setOutputToken}
           selectedToken={outputToken}
           blockSelectedToken={inputToken}
-     
         />
       </div>
 
       <div>
         {inputToken && inputToken.address !== ZeroAddress ? (
-          !approveDone ?
-          <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-36 rounded"
-            onClick={handleApprove}
-          >
-            Approve
-          </button>
-          :
+          !approveDone ? (
+            <button
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-36 rounded"
+              onClick={handleApprove}
+            >
+              Approve
+            </button>
+          ) : (
+            <button
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-36 rounded"
+              onClick={handleSwap}
+            >
+              Swap
+            </button>
+          )
+        ) : !swapDone ? (
           <button
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-36 rounded"
             onClick={handleSwap}
@@ -179,12 +189,9 @@ export default function SwapNavigator() {
             Swap
           </button>
         ) : (
-          <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-36 rounded"
-            onClick={handleSwap}
-          >
-            Swap
-          </button>
+          <div className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-36 rounded">
+            Done! 🎉
+          </div>
         )}
       </div>
     </div>

@@ -10,15 +10,19 @@ import { TokenIcon } from './TokenIcon';
 import { provider } from '../utils/provider';
 import { slice } from 'viem';
 
-export default function LPTokenBalanace({
+export default function LPPortFolio({
   setSelectedLP,
+  lpdone,
+  withdrawDone
 }: {
-  setSelectedLP: (lpdata: { pair: TokenData[]; balance: bigint }) => void;
+    setSelectedLP: (lpdata: { pair: TokenData[]; balance: bigint }) => void;
+    lpdone: boolean;
+    withdrawDone: boolean;
 }) {
   const { chain: currentChain } = useNetwork();
   const { address: user } = useAccount();
   const [pairList, setPairList] = useState<TokenData[][]>([]); //* lp token으로 쌍으로 저장함.
-  const [lpTokenBalance, setLPTokenBalance] = useState<bigint[]>([]);
+  const [lpTokenBalance, setLPTokenBalance] = useState<bigint[] | undefined>([]);
   const getLPTokenData = (): undefined | TokenData[][] => {
     const lpDatas =
       currentChain &&
@@ -52,7 +56,7 @@ export default function LPTokenBalanace({
     }
     return (await multicall.aggregate(data).then((res) => res[1])).map((s) =>
       slice(s as `0x${string}`, 12, 66)
-    ); // 결과가 bytes로 나와서 address에 맞게 하려면 12번째부터 66번째까지 자름.
+    ); //* 결과가 bytes로 나와서 address에 맞게 하려면 12번째부터 66번째까지 자름.
   };
 
   const getLPBalancesList = async (pairDatas: TokenData[][]) => {
@@ -61,13 +65,14 @@ export default function LPTokenBalanace({
       user &&
       (await getTokenBalance(lpAddrs, user).then((res) => res.returnData));
     const lpTokenBalance = balances && balances.map((s) => BigInt(s)); // getTokenBalance 함수는 Portfolio.tsx에서 가져옴
-    lpTokenBalance && setLPTokenBalance(lpTokenBalance);
+    setLPTokenBalance(lpTokenBalance);
+    console.log(lpTokenBalance);
   };
   useEffect(() => {
     //* get the list of LP tokens
     const lpList = getLPTokenData();
     lpList && getLPBalancesList(lpList);
-  }, [user, currentChain]);
+  }, [user, currentChain,lpdone,withdrawDone]);
 
   return (
     <div>

@@ -26,7 +26,7 @@ export const getTokenBalance = async (
   return multicall.aggregate(data);
 };
 
-export default function Portfolio() {
+export default function Portfolio({lpDone,swapDone,withdrawDone}: {lpDone: boolean, swapDone: boolean, withdrawDone: boolean }) {
   const { address: user } = useAccount();
   const { data: balance } = useBalance({ address: user, chainId: 137 });
   const { chain: currentChain } = useNetwork();
@@ -49,7 +49,7 @@ export default function Portfolio() {
   useEffect(() => {
     switchNetwork?.(137);
     getBalancesList();
-  }, [user, currentChain]);
+  }, [user, currentChain,lpDone,swapDone,withdrawDone]);
 
   return user ? (
     <div>
