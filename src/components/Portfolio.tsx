@@ -45,7 +45,7 @@ export default function Portfolio() {
   useEffect(() => {
     switchNetwork?.(137);
     getBalancesList();
-  });
+  }, [currentChain, user]);
 
   return user ? (
     <div>
