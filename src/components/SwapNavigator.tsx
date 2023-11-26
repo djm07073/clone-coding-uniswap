@@ -21,7 +21,7 @@ export default function SwapNavigator() {
   const [inputToken, setInputToken] = useState<TokenData>();
   const [outputToken, setOutputToken] = useState<TokenData>();
   const [path, setPath] = useState<`0x${string}`[]>();
-  const [approveDone, setApproveDone] = useState(true);
+  const [approveDone, setApproveDone] = useState(false);
 
   const signer = client &&  new JsonRpcSigner(
       new BrowserProvider(client.transport, {
